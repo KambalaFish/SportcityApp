@@ -17,6 +17,7 @@ import sportcityApp.gui.controllers.interfaces.SuccessAction;
 import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
 import sportcityApp.entities.Entity;
+import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -29,14 +30,22 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class EntityTableController <T extends Entity> {
+public class EntityTableController <T extends Entity, X extends Entity> {
 
     public interface EntitySource<E extends Entity>{
         ServiceResponse<Page<E>> getEntities(PageInfo pageInfo) throws Exception;
     }
 
     public interface EntityRemover<E extends Entity>{
-        ServiceResponse<Void> deleteEntity(Long id) throws Exception;
+        ServiceResponse<Void> deleteEntity(Integer id) throws Exception;
+    }
+
+    public interface LinkRemover<T>{
+        ServiceResponse<Page<T>> removeLink(Integer sourceId, Integer destinationId, PageInfo pageInfo);
+    }
+
+    public void setLinkRemover(LinkRemover<T> linkRemover){
+        this.linkRemover = linkRemover;
     }
 
     private EntitySource<T> entitySource;
@@ -44,9 +53,20 @@ public class EntityTableController <T extends Entity> {
     private RequestExecutor requestExecutor;
     private ContextWindowBuilder<T> infoWindowBuilder;
     private Supplier<T> newEntitySupplier;
+    private Supplier<X> supplierForM2M; /*например открываю сначала спортсмена, подробнее -> получаю окно тренеров. так вот здесь будет выдавать спортсмена*/
+
+    private LinkRemover<T> linkRemover;
+
     private EntityInputFormBuilder<T> inputFormBuilder;
+    private LinkingInputFormBuilder<X> linkingInputFormBuilder;
     private Consumer<String> statusBarMessageAcceptor;
     private boolean isContextWindow;
+    private boolean isLinkingWindow;
+
+    public void setIsLinkingWindow(boolean value){
+        isLinkingWindow = value;
+    }
+
 
     public void setInfoWindowBuilder(ContextWindowBuilder<T> infoWindowBuilder) {
         this.infoWindowBuilder = infoWindowBuilder;
@@ -104,9 +124,13 @@ public class EntityTableController <T extends Entity> {
         });
 
         deleteItem.setOnAction(event -> {
-            T entity = entityTable.getSelectionModel().getSelectedItem();
-            if (entity != null) {
-                deleteEntity(entity);
+            if(isLinkingWindow){
+                removeLink(supplierForM2M.get() ,entityTable.getSelectionModel().getSelectedItem());
+            } else {
+                T entity = entityTable.getSelectionModel().getSelectedItem();
+                if (entity != null) {
+                    deleteEntity(entity);
+                }
             }
         });
 
@@ -195,16 +219,32 @@ public class EntityTableController <T extends Entity> {
         );
     }
 
+    public void setEntityInputFormBuilder(EntityInputFormBuilder<T> entityInputFormBuilder){
+        this.inputFormBuilder = entityInputFormBuilder;
+    }
+
+    public void setNewEntitySupplier(Supplier<T> newEntitySupplier){
+        this.newEntitySupplier = newEntitySupplier;
+    }
+
+    public void setLinkingInputFormBuilder(LinkingInputFormBuilder<X> linkingInputFormBuilder){
+        this.linkingInputFormBuilder = linkingInputFormBuilder;
+    }
+
+    public void setSupplierForM2M(Supplier<X> supplierForM2M){
+        this.supplierForM2M = supplierForM2M;
+    }
+
+
+
     public void init(
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
-            EntityInputFormBuilder<T> entityInputFormBuilder,
-            Supplier<T> newEntitySupplier,
             boolean isContextWindow,
             Consumer<String> statusBarMessageAcceptor,
             Node filterBox
     ) {
-
+        isLinkingWindow = false;
         searchBox.managedProperty().bind(searchBox.visibleProperty());
         searchBox.setVisible(false);
 
@@ -223,8 +263,6 @@ public class EntityTableController <T extends Entity> {
             }
         });
 
-        this.inputFormBuilder = entityInputFormBuilder;
-        this.newEntitySupplier = newEntitySupplier;/*##*/
         this.isContextWindow = isContextWindow;
         this.statusBarMessageAcceptor = statusBarMessageAcceptor;
 
@@ -275,7 +313,7 @@ public class EntityTableController <T extends Entity> {
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
 
-        /*fillContextMenu();*/
+        fillContextMenu();
 
         Platform.runLater(this::refreshTableContents);
     }
@@ -348,6 +386,9 @@ public class EntityTableController <T extends Entity> {
         SuccessAction successAction = () -> refreshTableContents("Успешно изменено");
         Supplier<Stage> windowBuilder = () -> {
             if (isContextWindow) {
+                if(isLinkingWindow){
+                    return linkingInputFormBuilder.buildLinkingWindow(supplierForM2M.get(), successAction);/*#*/
+                }
                 return inputFormBuilder.buildContextCreationFormWindow(
                         newEntitySupplier.get(), successAction
                 );
@@ -375,6 +416,27 @@ public class EntityTableController <T extends Entity> {
             );
             e.printStackTrace();
         }
+    }
+
+    private void removeLink(X entityToSave, T entityToRemove){
+
+        disableComponent();
+        requestExecutor
+                .makeRequest(() -> linkRemover.removeLink(entityToSave.getId(), entityToRemove.getId(), pageInfo))
+                .setOnSuccessAction(responseBody -> Platform.runLater(
+                        () -> refreshTableContents("Успешно удалено")
+                ))
+                .setOnFailureAction(errorMessage -> {
+                    Platform.runLater(() -> {
+                        enableComponent();
+                        AlertDialogFactory.showErrorAlertDialog(
+                                String.format("Не удалось удалить сущность № %d!", entityToSave.getId()),
+                                errorMessage
+                        );
+                    });
+                })
+                .submit();
+
     }
 
     private void deleteEntity(T entity) {

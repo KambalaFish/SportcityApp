@@ -10,12 +10,12 @@ import java.util.Map;
 public interface CrudServiceApi {
 
     @GET("{root}/count")
-    Call<Long> countAll(@Path("root") String root);
+    Call<Integer> countAll(@Path("root") String root);
 
     @GET("{root}/{id}")
     Call<JsonElement> getById(
             @Path("root") String root,
-            @Path("id") Long id
+            @Path("id") Integer id
     );
 
     @GET("{root}")
@@ -27,7 +27,7 @@ public interface CrudServiceApi {
     @GET("{root}/collection")
     Call<JsonElement> getAllById(
             @Path("root") String root,
-            @Query("id") Collection<Long> idCollection
+            @Query("id") Collection<Integer> idCollection
     );
 
     @POST("{root}/search")
@@ -46,7 +46,7 @@ public interface CrudServiceApi {
     @PUT("{root}/{id}")
     Call<JsonElement> save(
             @Path("root") String root,
-            @Path("id") Long id,
+            @Path("id") Integer id,
             @Body JsonElement entity
     );
 
@@ -59,13 +59,13 @@ public interface CrudServiceApi {
     @DELETE("{root}/{id}")
     Call<Void> deleteById(
             @Path("root") String root,
-            @Path("id") Long id
+            @Path("id") Integer id
     );
 
     @DELETE("{root}/collection")
     Call<Void> deleteAllById(
             @Path("root") String root,
-            @Query("id") Collection<Long> idCollection
+            @Query("id") Collection<Integer> idCollection
     );
 
 }

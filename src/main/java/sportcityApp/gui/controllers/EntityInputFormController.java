@@ -13,6 +13,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
+import sportcityApp.entities.Coach;
+import sportcityApp.entities.Entity;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.controllers.interfaces.ErrorAction;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
@@ -35,6 +37,11 @@ public class EntityInputFormController<T> {
     public interface EntityFieldSetter<X>{
         void setField(X value);
     }
+
+    public interface EntityFieldPreviousRemover<X>{
+        void removeField(X value);
+    }
+
 
     private SubmitAction<T> submitAction;
     private SuccessAction onSuccessAction;
@@ -158,38 +165,11 @@ public class EntityInputFormController<T> {
 
         addField(name, dateTimeField);
         dateTimeFields.add(dateTimeField);
-
-//        DateTimePicker dateTimePicker = new DateTimePicker();
-//        String timeFormat = isDateOnly ?
-//                LocalDateFormatter.getDateFormat() : LocalDateFormatter.getDateTimeFormat();
-//        dateTimePicker.setFormat(timeFormat);
-//        dateTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-//            LocalDateTime localDateTime = dateTimePicker.getDateTimeValue();
-//            Date date = localDateTime == null ?
-//                    null : Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-//
-//            System.out.println(date);
-//
-//            fieldSetter.setField(date);
-//        });
-//
-//        LocalDateTime initDateTimeValue = null;
-//        if (initFieldValue != null) {
-//            initDateTimeValue = LocalDateTime.ofInstant(
-//                    initFieldValue.toInstant(), ZoneId.systemDefault()
-//            );
-//        }
-//
-//        fieldSetter.setField(initFieldValue);
-//        dateTimePicker.setDateTimeValue(initDateTimeValue);
-//
-//
-//        addField(name, dateTimePicker);
-//        dateTimePickers.add(dateTimePicker);
     }
 
+
     @SneakyThrows
-    public <X> void addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, ChoiceItemSupplier<X> itemSupplier) {
+    public <X> void addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, EntityFieldPreviousRemover<X> fieldRemover, ChoiceItemSupplier<X> itemSupplier) {
         ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "Не указано");
         var items = itemSupplier.getItems();
         items.add(defaultItem);
@@ -205,6 +185,8 @@ public class EntityInputFormController<T> {
         choiceBox.getItems().addAll(items);
         choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             fieldSetter.setField(newValue.getValue());
+            if (fieldRemover != null) /*нужно для M2M, когда выбрал сначала один айтем, потом другой, чтобы не добавлялось оба айтема*/
+                fieldRemover.removeField(oldValue.getValue());
         });
 
         choiceBoxes.put(choiceBox, defaultItem);

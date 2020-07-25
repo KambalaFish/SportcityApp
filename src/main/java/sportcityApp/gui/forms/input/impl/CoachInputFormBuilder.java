@@ -23,6 +23,7 @@ public class CoachInputFormBuilder extends AbstractEntityInputFormBuilder<Coach>
                 "Вид спорта",
                 coach.getSport(),
                 coach::setSport,
+                null,
                 Sport::getChoiceItems
                 );
     }
@@ -34,6 +35,6 @@ public class CoachInputFormBuilder extends AbstractEntityInputFormBuilder<Coach>
 
     @Override
     protected String getEditFormWindowTitle(Coach coach) {
-        return String.format("Начальника %s - изменить", coach.getName());
+        return String.format("Тренера %s - изменить", coach.getName());
     }
 }

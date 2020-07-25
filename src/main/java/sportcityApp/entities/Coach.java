@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import sportcityApp.entities.types.Sport;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -14,6 +12,17 @@ public class Coach extends Entity{
 
     private String name;
     private Sport sport;
+
+    List<Sportsman> sportsmen = new ArrayList<>();
+
+    public void addNewSportsman(Sportsman sportsman){
+        sportsmen.add(sportsman);
+    }
+
+    public void removeSportsman(Sportsman sportsman){
+        if(sportsmen.contains(sportsman))
+            sportsmen.remove(sportsman);
+    }
 
     private String sportNameProperty;
 

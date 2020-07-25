@@ -47,13 +47,13 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
     }
 
     @Override
-    public ServiceResponse<Long> countAll() {
+    public ServiceResponse<Integer> countAll() {
         var call = crudServiceApi.countAll(urlRoot);
         return getServerResponse(call);
     }
 
     @Override
-    public ServiceResponse<T> getById(Long id) {
+    public ServiceResponse<T> getById(Integer id) {
         var call = crudServiceApi.getById(urlRoot, id);
         return getServerResponse(call, entityClass);
     }
@@ -71,7 +71,7 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
     }
 
     @Override
-    public ServiceResponse<List<T>> getAllById(Collection<Long> idCollection) {
+    public ServiceResponse<List<T>> getAllById(Collection<Integer> idCollection) {
         var call = crudServiceApi.getAllById(urlRoot, idCollection);
         return getServerResponse(call, TypeFactory.getListType(entityClass));
     }
@@ -95,13 +95,13 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
     }
 
     @Override
-    public ServiceResponse<Void> deleteById(Long id) {
+    public ServiceResponse<Void> deleteById(Integer id) {
         var call = crudServiceApi.deleteById(urlRoot, id);
         return getServerResponse(call);
     }
 
     @Override
-    public ServiceResponse<Void> deleteAllById(Collection<Long> idCollection) {
+    public ServiceResponse<Void> deleteAllById(Collection<Integer> idCollection) {
         var call = crudServiceApi.deleteAllById(urlRoot, idCollection);
         return getServerResponse(call);
     }
@@ -145,5 +145,9 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
         }
 
         return new ServiceResponse<>(null, false, getErrorMessage(response));
+    }
+
+    protected CrudServiceApi getCrudServiceApi(){
+        return crudServiceApi;
     }
 }

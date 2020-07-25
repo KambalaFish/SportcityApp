@@ -10,15 +10,15 @@ import java.util.List;
 
 public interface Service<E extends Entity>{
 
-    ServiceResponse<Long> countAll();
+    ServiceResponse<Integer> countAll();
 
-    ServiceResponse<E> getById(Long id);
+    ServiceResponse<E> getById(Integer id);
 
     ServiceResponse<Page<E>> getAll(PageInfo pageInfo);
 
     ServiceResponse<Page<E>> search(Filter<E> filter, PageInfo pageInfo);
 
-    ServiceResponse<List<E>> getAllById(Collection<Long> idCollection);
+    ServiceResponse<List<E>> getAllById(Collection<Integer> idCollection);
 
     ServiceResponse<E> create(E entity);
 
@@ -26,8 +26,8 @@ public interface Service<E extends Entity>{
 
     ServiceResponse<List<E>> saveAll(Collection<E> entityCollection);
 
-    ServiceResponse<Void> deleteById(Long id);
+    ServiceResponse<Void> deleteById(Integer id);
 
-    ServiceResponse<Void> deleteAllById(Collection<Long> idCollection);
+    ServiceResponse<Void> deleteAllById(Collection<Integer> idCollection);
 
 }
