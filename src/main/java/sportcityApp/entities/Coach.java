@@ -1,5 +1,6 @@
 package sportcityApp.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import sportcityApp.entities.types.Sport;
@@ -24,6 +25,7 @@ public class Coach extends Entity{
             sportsmen.remove(sportsman);
     }
 
+    @JsonIgnore
     private String sportNameProperty;
 
     @Override

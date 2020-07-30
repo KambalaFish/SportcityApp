@@ -24,7 +24,7 @@
                         </Label>
                         <Accordion>
                             <panes>
-                                <TitledPane text="Люди">
+                                <TitledPane text="Спортивный состав">
                                     <content>
                                         <VBox prefHeight="200.0" prefWidth="100.0">
                                             <children>
@@ -38,10 +38,33 @@
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
+                                    <Button fx:id="abilityButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openAbility" text="Способности">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
                                             </children>
                                         </VBox>
                                     </content>
                                 </TitledPane>
+                        <TitledPane text="Организация соревнований">
+                           <content>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Button fx:id="competitionButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openCompetition" text="Соревнования">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button fx:id="organizerButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openOrganizer" text="Организаторы">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                           </content>
+                        </TitledPane>
                             </panes>
                         </Accordion>
                     </children>

@@ -84,6 +84,7 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
 
     @Override
     public ServiceResponse<T> save(T entity) {
+        /*System.out.println(gson.toJsonTree(entity));*/
         var call = crudServiceApi.save(urlRoot, entity.getId(), gson.toJsonTree(entity));
         return getServerResponse(call, entityClass);
     }

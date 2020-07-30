@@ -8,19 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lombok.SneakyThrows;
-import sportcityApp.entities.Ability;
-import sportcityApp.entities.Sportsman;
+import sportcityApp.entities.*;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
 import sportcityApp.gui.forms.filtering.FilterBoxBuilder;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
+import sportcityApp.gui.forms.input.LinkingInputFormBuilderForOwned;
 import sportcityApp.gui.forms.input.impl.*;
-import sportcityApp.entities.Coach;
-import sportcityApp.entities.Entity;
-import sportcityApp.services.AbilityService;
-import sportcityApp.services.CoachService;
-import sportcityApp.services.Service;
-import sportcityApp.services.SportsmanService;
+import sportcityApp.services.*;
 import sportcityApp.services.filters.Filter;
 import sportcityApp.utils.LocalDateFormatter;
 import sportcityApp.utils.RequestExecutor;
@@ -60,15 +55,16 @@ public class MainController {
             var sportsmanPropertyNames = new LinkedHashMap<>(Sportsman.getPropertyNames());
             var sportsmanSortPropertyNames = new LinkedHashMap<>(Sportsman.getSortPropertyNames());
 
-            Node sportsmenOfCoachTable = createInfoWindowEntityTableForM2M(
+            Node sportsmenOfCoachTable = createInfoWindowEntityTableForM2MOwned(
                     sportsmanPropertyNames,
                     sportsmanSortPropertyNames,
-                    pageInfo -> coachService.getSportsmen(coach.getId(), pageInfo),
+                    pageInfo -> coachService.getSportsmen(coach.getId(), pageInfo),/*T - это спортсмен в ентитиТэйблКонтроллерере*/
                     new SportsmanInputFormBuilder(requestExecutor),
                     new SportsmanForCoachInputFormBuilder(requestExecutor),
                     () -> coach,
-                    null
-                    );
+                    coachService::removeSportsmanFromCoach
+            );
+
 
             return EntityInfoWindowBuilder.newInfoWindow(coach.getName()).addTab(sportsmenOfCoachTable, "Спортсмены").build();
         };
@@ -103,6 +99,8 @@ public class MainController {
             var coachPropertyNames = new LinkedHashMap<>(Coach.getPropertyNames());
             var coachSortPropertyNames = new LinkedHashMap<>(Coach.getSortPropertyNames());
 
+            var competitionPropertyNames = new LinkedHashMap<>(Competition.getPropertyNames());
+            var competitionSortPropertyNames = new LinkedHashMap<>(Competition.getSortPropertyNames());
 
             Node abilitiesOfSportsmanTable = createInfoWindowEntityTable(
                     abilityPropertyNames,
@@ -124,10 +122,27 @@ public class MainController {
                     new CoachInputFormBuilder(requestExecutor),
                     new CoachForSportsmanInputFormBuilder(requestExecutor),
                     () -> sportsman,
-                    sportsmanService::removeCoachFromSportsman
+                    sportsmanService::removeCoachFromSportsman,
+                    sportsman::removeCoachById
             );
 
-            return EntityInfoWindowBuilder.newInfoWindow(sportsman.getName()).addTab(abilitiesOfSportsmanTable, "Способности").addTab(coachesOfSportsmanTable, "Тренеры").build();
+            Node competitionsOfSportsmanTable = createInfoWindowEntityTableForM2M(
+                    competitionPropertyNames,
+                    competitionSortPropertyNames,
+                    pageInfo -> sportsmanService.getCompetitions(sportsman.getId(), pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForSportsmanInputFormBuilder(requestExecutor),
+                    () -> sportsman,
+                    sportsmanService::removeCompetitionFromSportsman,
+                    sportsman::removeCompetitionById
+            );
+
+            return EntityInfoWindowBuilder.
+                    newInfoWindow(sportsman.getName()).
+                    addTab(abilitiesOfSportsmanTable, "Способности").
+                    addTab(coachesOfSportsmanTable, "Тренеры").
+                    addTab(competitionsOfSportsmanTable, "Соревнования").
+                    build();
         };
 
         createEntityTable(
@@ -140,6 +155,113 @@ public class MainController {
                 null,
                 null
                 );
+
+    }
+
+    @FXML
+    @SneakyThrows
+    public void openAbility(){
+        AbilityService abilityService = ServiceFactory.getAbilityService();
+        createEntityTable(
+                "Способности",
+                Ability.getPropertyNames(),
+                Ability.getSortPropertyNames(),
+                abilityService,
+                new AbilityInputFormBuilder(requestExecutor),
+                null,
+                null,
+                null
+                );
+    }
+
+    @FXML
+    @SneakyThrows
+    public void openCompetition(){
+        CompetitionService competitionService = ServiceFactory.getCompetitionService();
+
+        ContextWindowBuilder<Competition> infoWindowBuilder = competition ->{
+
+            var sportsmanPropertyNames= new LinkedHashMap<>(Sportsman.getPropertyNames());
+            var sportsmanSortPropertyNames = new LinkedHashMap<>(Sportsman.getSortPropertyNames());
+            var organizerPropertyNames = new LinkedHashMap<>(Organizer.getPropertyNames());
+            var organizerSortPropertyNames = new LinkedHashMap<>(Organizer.getSortPropertyNames());
+
+
+            Node sportsmenOfTheCompetition = createInfoWindowEntityTableForM2MOwned(
+                    sportsmanPropertyNames,
+                    sportsmanSortPropertyNames,
+                    pageInfo -> competitionService.getSportsmen(competition.getId(), pageInfo),
+                    new SportsmanInputFormBuilder(requestExecutor),
+                    new SportsmanForCompetitionInputFormBuilder(requestExecutor),
+                    () -> competition,
+                    competitionService::removeSportsmanFromCompetition
+            );
+
+            Node organizersOfTheCompetition = createInfoWindowEntityTableForM2M(
+                    organizerPropertyNames,
+                    organizerSortPropertyNames,
+                    pageInfo -> competitionService.getOrganizers(competition.getId(), pageInfo),
+                    new OrganizerInputFormBuilder(requestExecutor),
+                    new OrganizerForCompetitionInputFormBuilder(requestExecutor),
+                    () -> competition,
+                    competitionService::removeOrganizerFromCompetition,
+                    competition::removeOrganizerById
+            );
+
+            return EntityInfoWindowBuilder.
+                    newInfoWindow(competition.getName()).
+                    addTab(sportsmenOfTheCompetition, "Спортсмены").
+                    addTab(organizersOfTheCompetition, "Организаторы").
+                    build();
+        };
+
+        createEntityTable(
+                "Соревнования",
+                Competition.getPropertyNames(),
+                Competition.getSortPropertyNames(),
+                competitionService,
+                new CompetitionInputFormBuilder(requestExecutor),
+                infoWindowBuilder,
+                null,
+                null
+                );
+    }
+
+    @FXML
+    @SneakyThrows
+    public void openOrganizer(){
+        OrganizerService organizerService = ServiceFactory.getOrganizerService();
+
+        ContextWindowBuilder<Organizer> infoWindowBuilder = organizer -> {
+            var competitionPropertyNames = Competition.getPropertyNames();
+            var competitionSortPropertyNames = Competition.getSortPropertyNames();
+
+            Node competitionsOfTheOrganizer = createInfoWindowEntityTableForM2MOwned(
+                    competitionPropertyNames,
+                    competitionSortPropertyNames,
+                    pageInfo -> organizerService.getCompetitions(organizer.getId(), pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForOrganizerInputFormBuilder(requestExecutor),
+                    () -> organizer,
+                    organizerService::removeCompetitionFromOrganizer
+            );
+
+            return EntityInfoWindowBuilder.
+                    newInfoWindow(organizer.getName()).
+                    addTab(competitionsOfTheOrganizer, "Соревнования").
+                    build();
+        };
+
+        createEntityTable(
+                "Организаторы",
+                Organizer.getPropertyNames(),
+                Organizer.getSortPropertyNames(),
+                organizerService,
+                new OrganizerInputFormBuilder(requestExecutor),
+                infoWindowBuilder,
+                null,
+                null
+        );
 
     }
 
@@ -249,7 +371,8 @@ public class MainController {
             EntityInputFormBuilder<T> entityInputFormBuilder,
             LinkingInputFormBuilder<X> linkingInputFormBuilder,
             Supplier<X> supplier,
-            EntityTableController.LinkRemover<T> linkRemover
+            EntityTableController.LinkRemover linkRemover,
+            EntityTableController.FrontendSideLinkRemover frontendSideLinkRemover
     ) {
 
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
@@ -264,6 +387,7 @@ public class MainController {
         entityTableController.setSupplierForM2M(supplier);
 
         entityTableController.setLinkRemover(linkRemover);
+        entityTableController.setFrontendSideLinkRemover(frontendSideLinkRemover);
 
         entityTableController.init(
                 entityPropertyNames,
@@ -274,6 +398,42 @@ public class MainController {
         );
         entityTableController.setIsLinkingWindow(true);
 
+        return table;
+    }
+
+    @SneakyThrows
+    private <T extends Entity, X extends Entity> Node createInfoWindowEntityTableForM2MOwned(
+            Map<String, String> entityPropertyNames,
+            Map<String, String> entitySortPropertyNames,
+            EntityTableController.EntitySource<T> entitySource,
+            EntityInputFormBuilder<T> entityInputFormBuilder,
+            LinkingInputFormBuilderForOwned<X> linkingInputFormBuilder,
+            Supplier<X> supplier,
+            EntityTableController.LinkRemover linkRemover
+    ) {
+
+        FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
+        Node table = tableLoader.load();
+
+        EntityTableController<T, X> entityTableController = tableLoader.getController();
+        entityTableController.setEntitySource(entitySource);
+        entityTableController.setEntityRemover(null);
+        entityTableController.setRequestExecutor(requestExecutor);
+        entityTableController.setEntityInputFormBuilder(entityInputFormBuilder);
+        entityTableController.setLinkingInputFormBuilderForOwned(linkingInputFormBuilder);
+        entityTableController.setSupplierForM2M(supplier);
+
+        entityTableController.setLinkRemover(linkRemover);
+
+        entityTableController.init(
+                entityPropertyNames,
+                entitySortPropertyNames,
+                true,
+                this::setStatusBarMessage,
+                null
+        );
+        entityTableController.setIsLinkingWindow(true);
+        entityTableController.setIsOwnedWindow(true);
         return table;
     }
 

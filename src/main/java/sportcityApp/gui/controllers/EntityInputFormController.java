@@ -13,12 +13,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
-import sportcityApp.entities.Coach;
-import sportcityApp.entities.Entity;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2M;
 import sportcityApp.gui.controllers.interfaces.ErrorAction;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.custom.ChoiceItemForM2MOwned;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.utils.LocalDateFormatter;
 import sportcityApp.utils.RequestExecutor;
@@ -26,6 +26,7 @@ import sportcityApp.utils.RequestExecutor;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
 
 public class EntityInputFormController<T> {
@@ -53,6 +54,7 @@ public class EntityInputFormController<T> {
     private final List<TextField> dateTimeFields = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
+    private final Map<ComboBox, ChoiceItemForM2MOwned> choiceBoxesM2MOwned = new LinkedHashMap<>();
 
     @FXML
     private VBox contentBox;
@@ -61,6 +63,10 @@ public class EntityInputFormController<T> {
     private GridPane grid;
 
     private T entity;
+
+    public void setEntity(T entity){
+        this.entity = entity;
+    }
 
     public void init(T entity, SubmitAction<T> submitAction, SuccessAction onSuccessAction, ErrorAction onErrorAction, RequestExecutor requestExecutor){
         this.entity = entity;
@@ -168,6 +174,7 @@ public class EntityInputFormController<T> {
     }
 
 
+
     @SneakyThrows
     public <X> void addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, EntityFieldPreviousRemover<X> fieldRemover, ChoiceItemSupplier<X> itemSupplier) {
         ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "Не указано");
@@ -188,10 +195,44 @@ public class EntityInputFormController<T> {
             if (fieldRemover != null) /*нужно для M2M, когда выбрал сначала один айтем, потом другой, чтобы не добавлялось оба айтема*/
                 fieldRemover.removeField(oldValue.getValue());
         });
-
         choiceBoxes.put(choiceBox, defaultItem);
         addField(name, choiceBox);
     }
+
+    @SneakyThrows
+    public <X> void addChoiceBoxForM2MOwned(String name, X initFieldValue, X ownedEntityToSave, ChoiceItemSupplierForM2M<T, X> itemSupplier)  {
+        ChoiceItemForM2MOwned<T, X> defaultItem = new ChoiceItemForM2MOwned<>(null, "Не указано", value -> {}, value -> {});
+        var items = itemSupplier.getItems();
+        items.add(defaultItem);
+
+        ChoiceItemForM2MOwned<T, X> selectedItem = items.stream()
+                .filter(item -> item.getValue() != null &&
+                        item.getValue().equals(initFieldValue))
+                .findAny()
+                .orElse(defaultItem);
+
+        ComboBox<ChoiceItemForM2MOwned<T, X>> choiceBox = new ComboBox<>();
+        choiceBox.setValue(selectedItem);
+        choiceBox.getItems().addAll(items);
+
+        choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            newValue.fieldSetter.setField(ownedEntityToSave);
+            if(oldValue!=null) {
+                if (oldValue.fieldRemover == null){
+                    System.err.println("field remover in addChoiceBoxForM2MOwned is null, could leave to invalid changes");
+                    System.exit(13);
+                    /*throw new Exception("field remover in addChoiceBoxForM2MOwned is null, could leave to invalid changes");*/
+                }
+                oldValue.fieldRemover.removeField(ownedEntityToSave);
+            }
+            entity = newValue.getValue();
+        });
+
+        choiceBoxesM2MOwned.put(choiceBox, defaultItem);
+        addField(name, choiceBox);
+    }
+
+
 
     private void addField(String name, Control field){
         field.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -245,6 +286,15 @@ public class EntityInputFormController<T> {
             }
         }
 
+        for (var rawChoiceBox: choiceBoxesM2MOwned.keySet()) {
+            ComboBox<ChoiceItemForM2MOwned<?,?>> choiceBoxForM2M = rawChoiceBox;
+            ChoiceItemForM2MOwned<?, ?> choiceItem = choiceBoxForM2M.valueProperty().getValue();
+            if (choiceItem.getValue() == null) {
+                choiceBoxForM2M.requestFocus();
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -266,6 +316,12 @@ public class EntityInputFormController<T> {
             ComboBox<ChoiceItem<?>> choiceBox = rawChoiceBox;
             ChoiceItem<?> defaultItem = choiceBoxes.get(rawChoiceBox);
             choiceBox.setValue(defaultItem);
+        }
+
+        for (var rawChoiceBox: choiceBoxesM2MOwned.keySet()) {
+            ComboBox<ChoiceItemForM2MOwned<?, ?>> choiceBoxForM2MOwned = rawChoiceBox;
+            ChoiceItemForM2MOwned<?, ?> defaultItem = choiceBoxesM2MOwned.get(rawChoiceBox);
+            choiceBoxForM2MOwned.setValue(defaultItem);
         }
 
         for (var checkBox: checkBoxes) {

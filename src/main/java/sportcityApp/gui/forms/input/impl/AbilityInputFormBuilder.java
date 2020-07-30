@@ -1,6 +1,7 @@
 package sportcityApp.gui.forms.input.impl;
 
 import sportcityApp.entities.Ability;
+import sportcityApp.entities.Sportsman;
 import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
@@ -17,8 +18,20 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
 
     @Override
     protected void fillInputForm(Ability ability, FormType formType, boolean isContextWindow, EntityInputFormController<Ability> controller) {
-        
-        ChoiceItemSupplier<Integer> sportsmanIdSupplier = makeChoiceItemSupplierFromEntities(ServiceFactory.getSportsmanService(), s -> new ChoiceItem<>(s.getId(), s.getName()), "Не удалось загрузить список спортсменов");
+        if (!isContextWindow){
+            ChoiceItemSupplier<Sportsman> choiceItemSupplier = makeChoiceItemSupplierFromEntities(
+                    ServiceFactory.getSportsmanService(),
+                    sportsman -> new ChoiceItem<>(sportsman, sportsman.getName()),
+                    "Не удалось загрузить спортсменов"
+            );
+            controller.addChoiceBox(
+                    "Спортсмен",
+                    ability.getSportsman(),
+                    ability::setSportsman,
+                    null,
+                    choiceItemSupplier
+            );
+        }
         controller.addChoiceBox(
                 "Вид спорта",
                 ability.getSport(),
@@ -27,11 +40,7 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
                 Sport::getChoiceItems
         );
         controller.addIntegerField("Разряд", ability.getLevel(), ability::setLevel);
-        /*
-        if(!isContextWindow) {
-            controller.addTextField("Спортсмен", ability.getSportName(), ability::setSportsman);
-        }
-        */
+
     }
 
     @Override

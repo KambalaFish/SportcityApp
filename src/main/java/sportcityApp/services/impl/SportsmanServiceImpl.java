@@ -1,9 +1,6 @@
 package sportcityApp.services.impl;
 
-import sportcityApp.entities.Ability;
-import sportcityApp.entities.Coach;
-import sportcityApp.entities.Entity;
-import sportcityApp.entities.Sportsman;
+import sportcityApp.entities.*;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.SportsmanService;
 import sportcityApp.services.impl.api.SportsmanServiceApi;
@@ -29,8 +26,20 @@ public class SportsmanServiceImpl extends AbstractCrudServiceImpl<Sportsman> imp
     }
 
     @Override
-    public ServiceResponse<Page<Coach>> removeCoachFromSportsman(Integer sportsmanId, Integer coachId, PageInfo pageInfo) {
-        var call = getServiceApi().removeCoachFromSportsman(sportsmanId, coachId, PageInfo.toMap(pageInfo));
+    public ServiceResponse<Void> removeCoachFromSportsman(Integer sportsmanId, Integer coachId) {
+        var call = getServiceApi().removeCoachFromSportsman(sportsmanId, coachId);
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Page<Competition>> getCompetitions(Integer sportsmanId, PageInfo pageInfo){
+        var call = getServiceApi().getCompetitions(sportsmanId, PageInfo.toMap(pageInfo));
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Void> removeCompetitionFromSportsman(Integer sportsmanId, Integer competitionId){
+        var call = getServiceApi().removeCompetitionFromSportsman(sportsmanId, competitionId);
         return getServerResponse(call);
     }
 

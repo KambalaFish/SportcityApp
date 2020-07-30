@@ -1,6 +1,5 @@
 package sportcityApp.gui.custom;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

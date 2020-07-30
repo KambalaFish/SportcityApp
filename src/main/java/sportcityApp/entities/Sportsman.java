@@ -13,14 +13,31 @@ public class Sportsman extends Entity {
     private String club_name;
 
     List<Coach> coaches = new ArrayList<>();
+    List<Competition> competitions = new ArrayList<>();
 
     public void addNewCoach(Coach coach){
-        coaches.add(coach);
+        if(!coaches.contains(coach))
+            coaches.add(coach);
     }
 
     public void removeCoach(Coach coach){
-        if(coaches.contains(coach))
             coaches.remove(coach);
+    }
+
+    public void removeCoachById(Integer id){
+        coaches.removeIf(coach -> coach.getId().intValue() == id);
+    }
+
+    public void addNewCompetition(Competition competition){
+        competitions.add(competition);
+    }
+
+    public void removeCompetition(Competition competition){
+        competitions.remove(competition);
+    }
+
+    public void removeCompetitionById(Integer id){
+        competitions.removeIf(competition -> competition.getId().intValue() == id);
     }
 
     @Override
@@ -39,7 +56,7 @@ public class Sportsman extends Entity {
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
-        propertyNames.put("name", "Спортсмен");
+        propertyNames.put("name", "ФИО спортсмена");
         propertyNames.put("club_name", "Клуб");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());

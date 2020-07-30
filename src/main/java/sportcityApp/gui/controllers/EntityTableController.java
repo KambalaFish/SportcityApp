@@ -18,6 +18,7 @@ import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
 import sportcityApp.entities.Entity;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
+import sportcityApp.gui.forms.input.LinkingInputFormBuilderForOwned;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -40,12 +41,20 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         ServiceResponse<Void> deleteEntity(Integer id) throws Exception;
     }
 
-    public interface LinkRemover<T>{
-        ServiceResponse<Page<T>> removeLink(Integer sourceId, Integer destinationId, PageInfo pageInfo);
+    public interface LinkRemover{
+        ServiceResponse<Void> removeLink(Integer sourceId, Integer destinationId);
     }
 
-    public void setLinkRemover(LinkRemover<T> linkRemover){
+    public interface FrontendSideLinkRemover{
+        void removeLink(Integer idOfEntityToRemove);
+    }
+
+    public void setLinkRemover(LinkRemover linkRemover){
         this.linkRemover = linkRemover;
+    }
+
+    public void setFrontendSideLinkRemover(FrontendSideLinkRemover frontendSideLinkRemover){
+        this.frontendSideLinkRemover = frontendSideLinkRemover;
     }
 
     private EntitySource<T> entitySource;
@@ -55,16 +64,23 @@ public class EntityTableController <T extends Entity, X extends Entity> {
     private Supplier<T> newEntitySupplier;
     private Supplier<X> supplierForM2M; /*например открываю сначала спортсмена, подробнее -> получаю окно тренеров. так вот здесь будет выдавать спортсмена*/
 
-    private LinkRemover<T> linkRemover;
+    private LinkRemover linkRemover;
+    private FrontendSideLinkRemover frontendSideLinkRemover;
 
     private EntityInputFormBuilder<T> inputFormBuilder;
     private LinkingInputFormBuilder<X> linkingInputFormBuilder;
+    private LinkingInputFormBuilderForOwned<X> linkingInputFormBuilderForOwned;
     private Consumer<String> statusBarMessageAcceptor;
     private boolean isContextWindow;
     private boolean isLinkingWindow;
+    private boolean isOwnedWindow;
 
     public void setIsLinkingWindow(boolean value){
         isLinkingWindow = value;
+    }
+
+    public void setIsOwnedWindow(boolean value){
+        isOwnedWindow = value;
     }
 
 
@@ -125,6 +141,8 @@ public class EntityTableController <T extends Entity, X extends Entity> {
 
         deleteItem.setOnAction(event -> {
             if(isLinkingWindow){
+                if(!isOwnedWindow)
+                    frontendSideLinkRemover.removeLink(entityTable.getSelectionModel().getSelectedItem().getId());
                 removeLink(supplierForM2M.get() ,entityTable.getSelectionModel().getSelectedItem());
             } else {
                 T entity = entityTable.getSelectionModel().getSelectedItem();
@@ -231,6 +249,10 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         this.linkingInputFormBuilder = linkingInputFormBuilder;
     }
 
+    public void setLinkingInputFormBuilderForOwned(LinkingInputFormBuilderForOwned<X> linkingInputFormBuilderForOwned){
+        this.linkingInputFormBuilderForOwned = linkingInputFormBuilderForOwned;
+    }
+
     public void setSupplierForM2M(Supplier<X> supplierForM2M){
         this.supplierForM2M = supplierForM2M;
     }
@@ -245,6 +267,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
             Node filterBox
     ) {
         isLinkingWindow = false;
+        isOwnedWindow = false;
         searchBox.managedProperty().bind(searchBox.visibleProperty());
         searchBox.setVisible(false);
 
@@ -387,6 +410,9 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         Supplier<Stage> windowBuilder = () -> {
             if (isContextWindow) {
                 if(isLinkingWindow){
+                    if(isOwnedWindow){
+                        return linkingInputFormBuilderForOwned.buildLinkingWindow(supplierForM2M.get(), successAction);
+                    }
                     return linkingInputFormBuilder.buildLinkingWindow(supplierForM2M.get(), successAction);/*#*/
                 }
                 return inputFormBuilder.buildContextCreationFormWindow(
@@ -422,7 +448,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
 
         disableComponent();
         requestExecutor
-                .makeRequest(() -> linkRemover.removeLink(entityToSave.getId(), entityToRemove.getId(), pageInfo))
+                .makeRequest(() -> linkRemover.removeLink(entityToSave.getId(), entityToRemove.getId()))
                 .setOnSuccessAction(responseBody -> Platform.runLater(
                         () -> refreshTableContents("Успешно удалено")
                 ))

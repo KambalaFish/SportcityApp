@@ -3,15 +3,15 @@ package sportcityApp.gui.forms.input.impl;
 import sportcityApp.entities.Coach;
 import sportcityApp.entities.Sportsman;
 import sportcityApp.gui.controllers.EntityInputFormController;
-import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
-import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2M;
+import sportcityApp.gui.custom.ChoiceItemForM2MOwned;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
-public class SportsmanForCoachInputFormBuilder extends AbstractLinkingInputFormBuilder<Coach>{
+public class SportsmanForCoachInputFormBuilder extends AbstractLinkingInputFormBuilderForOwned<Sportsman, Coach>{
 
     public SportsmanForCoachInputFormBuilder(RequestExecutor requestExecutor){
-        super(requestExecutor, ServiceFactory.getCoachService());
+        super(requestExecutor, ServiceFactory.getSportsmanService());
     }
 
     @Override
@@ -20,12 +20,13 @@ public class SportsmanForCoachInputFormBuilder extends AbstractLinkingInputFormB
     }
 
     @Override
-    protected void fillInputForm(Coach entity, EntityInputFormController<Coach> controller) {
-        ChoiceItemSupplier<Sportsman> sportsmanSupplier = makeChoiceItemSupplierFromEntities(
+    protected void fillInputForm(Coach entity, EntityInputFormController<Sportsman> controller){
+        ChoiceItemSupplierForM2M<Sportsman, Coach> sportsmanForCoachSupplier = makeChoiceItemSupplierFromEntitiesForM2MOwned(
                 ServiceFactory.getSportsmanService(),
-                sportsman -> new ChoiceItem<>(sportsman, sportsman.getName()),
+                sportsman -> new ChoiceItemForM2MOwned<>(sportsman, sportsman.getName(), sportsman::addNewCoach, sportsman::removeCoach),
                 "не удалось загрузить список спортсменов"
-                );
-        controller.addChoiceBox("Спортсмен", null, entity::addNewSportsman, entity::removeSportsman, sportsmanSupplier);
+        );
+        controller.addChoiceBoxForM2MOwned("Спортсмен", null, entity,  sportsmanForCoachSupplier);
     }
+
 }

@@ -2,12 +2,8 @@ package sportcityApp.utils;
 
 import lombok.experimental.UtilityClass;
 import sportcityApp.AppProperties;
-import sportcityApp.services.AbilityService;
-import sportcityApp.services.CoachService;
-import sportcityApp.services.SportsmanService;
-import sportcityApp.services.impl.AbilityServiceImpl;
-import sportcityApp.services.impl.CoachServiceImpl;
-import sportcityApp.services.impl.SportsmanServiceImpl;
+import sportcityApp.services.*;
+import sportcityApp.services.impl.*;
 
 @UtilityClass
 public class ServiceFactory {
@@ -22,5 +18,13 @@ public class ServiceFactory {
 
     public AbilityService getAbilityService(){
         return new AbilityServiceImpl(AppProperties.getServerHostname());
+    }
+
+    public CompetitionService getCompetitionService(){
+        return new CompetitionServiceImpl(AppProperties.getServerHostname());
+    }
+
+    public OrganizerService getOrganizerService(){
+        return new OrganizerServiceImpl(AppProperties.getServerHostname());
     }
 }

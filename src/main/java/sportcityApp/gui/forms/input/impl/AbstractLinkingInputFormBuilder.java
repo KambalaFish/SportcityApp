@@ -8,8 +8,10 @@ import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.FxmlLoaderFactory;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2M;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.custom.ChoiceItemForM2MOwned;
 import sportcityApp.gui.forms.StageFactory;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
 import sportcityApp.services.Service;
@@ -27,6 +29,7 @@ public abstract class AbstractLinkingInputFormBuilder <E extends Entity> impleme
     private final RequestExecutor requestExecutor;
     private final Service<E> entityService;
 
+
     protected AbstractLinkingInputFormBuilder(RequestExecutor requestExecutor, Service<E> entityService){
         this.requestExecutor = requestExecutor;
         this.entityService = entityService;
@@ -35,6 +38,7 @@ public abstract class AbstractLinkingInputFormBuilder <E extends Entity> impleme
     protected abstract String getLinkingWindowTitle();
 
     protected abstract void fillInputForm(E entity, EntityInputFormController<E> controller);
+
 
     @SneakyThrows
     public Stage buildLinkingWindow(E entity, SuccessAction onSuccessAction) {
@@ -55,6 +59,7 @@ public abstract class AbstractLinkingInputFormBuilder <E extends Entity> impleme
         String windowTitle = getLinkingWindowTitle();
         return StageFactory.createStage(rootNode, windowTitle);
     }
+
 
     protected <X extends Entity, Y> ChoiceItemSupplier<Y> makeChoiceItemSupplierFromEntities(
             Service<X> entityService,

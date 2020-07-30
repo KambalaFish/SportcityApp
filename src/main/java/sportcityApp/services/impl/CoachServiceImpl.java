@@ -20,6 +20,13 @@ public class CoachServiceImpl extends AbstractCrudServiceImpl<Coach> implements 
         return getServerResponse(call);
     }
 
+    @Override
+    public ServiceResponse<Void> removeSportsmanFromCoach(Integer coachId, Integer sportsmanId) {
+        var call = getServiceApi().removeSportsmanFromCoach(coachId, sportsmanId);
+        return getServerResponse(call);
+    }
+
+
     private CoachServiceApi getServiceApi(){
         return (CoachServiceApi) getCrudServiceApi();
     }

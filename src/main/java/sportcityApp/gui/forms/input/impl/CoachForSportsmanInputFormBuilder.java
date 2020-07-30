@@ -28,4 +28,6 @@ public class CoachForSportsmanInputFormBuilder extends AbstractLinkingInputFormB
 
         controller.addChoiceBox("Тренер", null, entity::addNewCoach/*coach -> entity.addNewCoach(coach)*/, entity::removeCoach, coachSupplier);
     }
+
+
 }

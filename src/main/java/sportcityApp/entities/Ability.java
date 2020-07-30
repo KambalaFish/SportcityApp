@@ -12,11 +12,12 @@ import java.util.Map;
 @Setter
 public class Ability extends Entity{
     private Sportsman sportsman = new Sportsman();
+
     private Sport sport;
     private Integer level;
 
     private String sportsmanName;
-    private String sportName;
+    private String sportProperty;
 
     @Override
     public Ability clone(){
@@ -29,7 +30,7 @@ public class Ability extends Entity{
     public void calculateProperties(){
         super.calculateProperties();
         sportsmanName = sportsman.getName();
-        sportName = Sport.toLocalizedString(sport);
+        sportProperty = Sport.toLocalizedString(sport);
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -38,13 +39,13 @@ public class Ability extends Entity{
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("sportsmanName", "Спортсмен");
-        propertyNames.put("sportName","Спорт");
+        propertyNames.put("sportProperty","Вид спорта");
         propertyNames.put("level", "Разряд");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("sportsmanName", "Имя спортсмена");
-        propertyNames.put("sportName","Вид спорта");
-        propertyNames.put("level", "Разряд");
+        sortPropertyNames.put("sportProperty", "Спорт");
+        sortPropertyNames.put("level", "Разряд");
     }
 
     public static Map<String, String> getPropertyNames() {
