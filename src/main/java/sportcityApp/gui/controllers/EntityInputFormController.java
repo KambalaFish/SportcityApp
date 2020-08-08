@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -13,12 +14,16 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
+import sportcityApp.entities.SportFacility;
+import sportcityApp.entities.types.FacilityType;
+import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
-import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2M;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2MOwned;
 import sportcityApp.gui.controllers.interfaces.ErrorAction;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
 import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.gui.custom.ChoiceItemForM2MOwned;
+import sportcityApp.gui.forms.StageFactory;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.utils.LocalDateFormatter;
 import sportcityApp.utils.RequestExecutor;
@@ -26,7 +31,8 @@ import sportcityApp.utils.RequestExecutor;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public class EntityInputFormController<T> {
@@ -173,12 +179,14 @@ public class EntityInputFormController<T> {
         dateTimeFields.add(dateTimeField);
     }
 
-
-
     @SneakyThrows
     public <X> void addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, EntityFieldPreviousRemover<X> fieldRemover, ChoiceItemSupplier<X> itemSupplier) {
-        ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "Не указано");
+        ChoiceItem<X> defaultItem;
         var items = itemSupplier.getItems();
+        if (items.isEmpty()){
+            defaultItem = new ChoiceItem<>(null, "Нет доступных вариантов");
+        } else
+            defaultItem = new ChoiceItem<>(null, "Не указано");
         items.add(defaultItem);
 
         ChoiceItem<X> selectedItem = items.stream()
@@ -192,17 +200,131 @@ public class EntityInputFormController<T> {
         choiceBox.getItems().addAll(items);
         choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             fieldSetter.setField(newValue.getValue());
-            if (fieldRemover != null) /*нужно для M2M, когда выбрал сначала один айтем, потом другой, чтобы не добавлялось оба айтема*/
+            if (oldValue.getValue()!=null & fieldRemover != null) /*нужно для M2M, когда выбрал сначала один айтем, потом другой, чтобы не добавлялось оба айтема*/
                 fieldRemover.removeField(oldValue.getValue());
         });
         choiceBoxes.put(choiceBox, defaultItem);
         addField(name, choiceBox);
     }
 
+    public void addChoiceBoxForSportFacilityTypeCreation(SportFacility sportFacility){
+        ChoiceItem<FacilityType> defaultItem = new ChoiceItem<>(null, "Не указано");
+        var items = FacilityType.getChoiceItems();
+        items.add(defaultItem);
+
+        ComboBox<ChoiceItem<FacilityType>> choiceBoxOfFacilityTypes = new ComboBox<>();
+        choiceBoxOfFacilityTypes.setValue(defaultItem);
+        choiceBoxOfFacilityTypes.getItems().addAll(items);
+        choiceBoxOfFacilityTypes.valueProperty().addListener((observable, oldValue, newValue) -> {
+                switch (newValue.getValue()) {
+                    case stadium:
+                        createStadiumInput(sportFacility);
+                        break;
+                    case court:
+                        createCourtInput(sportFacility);
+                        break;
+                    case iceArena:
+                        createIceArena(sportFacility);
+                        break;
+                    case volleyballArena:
+                        createVolleyballArena(sportFacility);
+                        break;
+                }
+                if (oldValue.getValue() != null){
+                    switch (oldValue.getValue()){
+                        case volleyballArena:
+                            sportFacility.setVolleyballArena(null);
+                            break;
+                        case stadium:
+                            sportFacility.setStadium(null);
+                            break;
+                        case iceArena:
+                            sportFacility.setIceArena(null);
+                            break;
+                        case court:
+                            sportFacility.setCourt(null);
+                            break;
+                    }
+                }
+        });
+        choiceBoxes.put(choiceBoxOfFacilityTypes, defaultItem);
+        addField("Тип сооружения", choiceBoxOfFacilityTypes);
+    }
+
     @SneakyThrows
-    public <X> void addChoiceBoxForM2MOwned(String name, X initFieldValue, X ownedEntityToSave, ChoiceItemSupplierForM2M<T, X> itemSupplier)  {
-        ChoiceItemForM2MOwned<T, X> defaultItem = new ChoiceItemForM2MOwned<>(null, "Не указано", value -> {}, value -> {});
+    private void createStadiumInput(SportFacility sportFacility){
+        var fxmlLoader = FxmlLoaderFactory.createSportFacilityInputFormLoader();
+        Parent rootNode = fxmlLoader.load();
+        SportFacilityInputFormController controller = fxmlLoader.getController();
+        controller.init(requestExecutor);
+        controller.inputStadium(sportFacility);
+
+        Supplier<Stage> supplier = () -> StageFactory.createStage(rootNode, "Добавить стадион");
+        openWindow(supplier, "Открытие формы для создания стадион не удалось");
+    }
+
+    @SneakyThrows
+    private void createCourtInput(SportFacility sportFacility){
+        var fxmlLoader = FxmlLoaderFactory.createSportFacilityInputFormLoader();
+        Parent rootNode = fxmlLoader.load();
+        SportFacilityInputFormController controller = fxmlLoader.getController();
+        controller.init(requestExecutor);
+        controller.inputCourt(sportFacility);
+
+        Supplier<Stage> supplier = () -> StageFactory.createStage(rootNode, "Добавить корт");
+        openWindow(supplier, "Открытие формы для создания корта не удалось");
+    }
+
+    @SneakyThrows
+    private void createIceArena(SportFacility sportFacility){
+        var fxmlLoader = FxmlLoaderFactory.createSportFacilityInputFormLoader();
+        Parent rootNode = fxmlLoader.load();
+        SportFacilityInputFormController controller = fxmlLoader.getController();
+        controller.init(requestExecutor);
+        controller.inputIceArena(sportFacility);
+
+        Supplier<Stage> supplier = () -> StageFactory.createStage(rootNode, "Добавить ледовую арену");
+        openWindow(supplier, "Открытие формы для создания ледовой арены не удалось");
+    }
+
+    @SneakyThrows
+    private void createVolleyballArena(SportFacility sportFacility){
+        var fxmlLoader = FxmlLoaderFactory.createSportFacilityInputFormLoader();
+        Parent rootNode = fxmlLoader.load();
+        SportFacilityInputFormController controller = fxmlLoader.getController();
+        controller.init(requestExecutor);
+        controller.inputVolleyballArena(sportFacility);
+
+        Supplier<Stage> supplier = () -> StageFactory.createStage(rootNode, "Добавить волейбольную арену");
+        openWindow(supplier, "Открытие формы для создания волейбольной арены не удалось");
+    }
+
+
+    private void openWindow(Supplier<Stage> windowBuilder, String errorDialogHeader) {
+        try {
+            if (windowBuilder != null) {
+                Stage contextWindow = windowBuilder.get();
+                contextWindow.show();
+            }
+        } catch (Exception e) {
+            Platform.runLater(() ->
+                    AlertDialogFactory.showErrorAlertDialog(
+                            errorDialogHeader,
+                            e.getLocalizedMessage()
+                    )
+            );
+            e.printStackTrace();
+        }
+    }
+
+    @SneakyThrows
+    public <X> void addChoiceBoxForM2MOwned(String name, X initFieldValue, X ownedEntityToSave, ChoiceItemSupplierForM2MOwned<T, X> itemSupplier)  {
+        ChoiceItemForM2MOwned<T, X> defaultItem;
         var items = itemSupplier.getItems();
+        if (items.isEmpty())
+            defaultItem = new ChoiceItemForM2MOwned<>(null, "Нет доступных вариантов", value -> {}, value -> {});
+        else
+            defaultItem = new ChoiceItemForM2MOwned<>(null, "Не указано", value -> {}, value -> {});
         items.add(defaultItem);
 
         ChoiceItemForM2MOwned<T, X> selectedItem = items.stream()
@@ -221,7 +343,6 @@ public class EntityInputFormController<T> {
                 if (oldValue.fieldRemover == null){
                     System.err.println("field remover in addChoiceBoxForM2MOwned is null, could leave to invalid changes");
                     System.exit(13);
-                    /*throw new Exception("field remover in addChoiceBoxForM2MOwned is null, could leave to invalid changes");*/
                 }
                 oldValue.fieldRemover.removeField(ownedEntityToSave);
             }
@@ -329,6 +450,11 @@ public class EntityInputFormController<T> {
         }
     }
 
+    private Consumer<T> preparation;
+    public void setPreparation(Consumer<T> preparation){
+        this.preparation = preparation;
+    }
+
     @FXML
     private void submit(ActionEvent event) {
         boolean fieldsAreValid = validateFields();
@@ -338,7 +464,11 @@ public class EntityInputFormController<T> {
 
         disableComponent();
         requestExecutor
-                .makeRequest(() -> submitAction.submit(entity))
+                .makeRequest(() ->{
+                    if (preparation!=null)
+                        preparation.accept(entity);
+                    return submitAction.submit(entity);
+                })
                 .setOnSuccessAction(createdEntity -> {
                     Platform.runLater(() -> {
                         Node sourceNode = (Node) event.getSource();

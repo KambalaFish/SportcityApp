@@ -7,7 +7,7 @@ import sportcityApp.entities.Entity;
 import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.FxmlLoaderFactory;
-import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2M;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplierForM2MOwned;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
 import sportcityApp.gui.custom.ChoiceItemForM2MOwned;
 import sportcityApp.gui.forms.StageFactory;
@@ -19,6 +19,7 @@ import sportcityApp.utils.RequestExecutor;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /*E - это владелец отношение(спортсмен), T - это замапленная сторона(тренера)*/
@@ -56,8 +57,23 @@ public abstract class AbstractLinkingInputFormBuilderForOwned <E extends Entity,
         return StageFactory.createStage(rootNode, windowTitle);
     }
 
-    protected <E extends Entity, T extends Entity> ChoiceItemSupplierForM2M<E, T> makeChoiceItemSupplierFromEntitiesForM2MOwned(
+    protected <E extends Entity, T extends Entity> ChoiceItemSupplierForM2MOwned<E, T> makeChoiceItemSupplierFromEntitiesForM2MOwned(
             Service<E> entityService,
+            Function<E, ChoiceItemForM2MOwned<E, T>> entityToChoiceItemMapper,
+            String errorMessage
+    )
+    {
+        return makeChoiceItemSupplierFromEntitiesForM2MOwned(
+                entityService,
+                x -> true,
+                entityToChoiceItemMapper,
+                errorMessage
+        );
+    }
+
+    protected <E extends Entity, T extends Entity> ChoiceItemSupplierForM2MOwned<E, T> makeChoiceItemSupplierFromEntitiesForM2MOwned(
+            Service<E> entityService,
+            Predicate<E> entityFilterPredicate,
             Function<E, ChoiceItemForM2MOwned<E, T>> entityToChoiceItemMapper,
             String errorMessage
     )
@@ -68,6 +84,7 @@ public abstract class AbstractLinkingInputFormBuilderForOwned <E extends Entity,
                 Objects.requireNonNull(page, errorMessage);
 
                 return page.getElementList().stream()
+                        .filter(entityFilterPredicate)
                         .map(entityToChoiceItemMapper)
                         .collect(Collectors.toList());
             } catch (Exception e) {

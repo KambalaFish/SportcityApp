@@ -1,10 +1,11 @@
-package sportcityApp.gui.forms.input.impl;
+package sportcityApp.gui.forms.input.impl.For;
 
 import sportcityApp.entities.Competition;
 import sportcityApp.entities.Organizer;
 import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.forms.input.impl.AbstractLinkingInputFormBuilder;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 

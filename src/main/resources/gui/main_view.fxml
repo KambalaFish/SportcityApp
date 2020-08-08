@@ -65,6 +65,39 @@
                               </VBox>
                            </content>
                         </TitledPane>
+                        <TitledPane text="Инфраструктура">
+                           <content>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Button fx:id="sportFacilityButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openSportFacilities" text="Спортивные сооружения">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button fx:id="courtButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openCourts" text="Корты">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button fx:id="stadiumButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openStadium" text="Стадионы">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button fx:id="iceArenaButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openIceArena" text="Ледовые арены">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button fx:id="VolleyballArenaButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openVolleyballArena" text="Волейбольная арена">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                           </content>
+                        </TitledPane>
                             </panes>
                         </Accordion>
                     </children>

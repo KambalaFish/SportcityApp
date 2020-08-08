@@ -6,6 +6,8 @@ import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
+import java.util.function.Consumer;
+
 public class CompetitionInputFormBuilder extends AbstractEntityInputFormBuilder<Competition> {
 
     public CompetitionInputFormBuilder(RequestExecutor requestExecutor){
@@ -19,13 +21,21 @@ public class CompetitionInputFormBuilder extends AbstractEntityInputFormBuilder<
                 entity.getDate(),
                 entity::setDate
         );
-        controller.addChoiceBox(
-                "Вид спорта",
-                entity.getSport(),
-                entity::setSport,
-                null,
-                Sport::getChoiceItems
-        );
+        //if (formType==FormType.CREATION_FORM)
+            controller.addChoiceBox(
+                    "Вид спорта",
+                    entity.getSport(),
+                    entity::setSport,
+                    null,
+                    Sport::getChoiceItems
+            );
+        /*то есть выходит, если что-то поменяли в соревновании, например вид спорта, то все связи со спортивными сооружениями и спортсменами удаляются*/
+        Consumer<Competition> preparation = competition -> {
+            competition.getSportFacilities().clear();
+            competition.getSportsmen().clear();
+        };
+
+        controller.setPreparation(preparation);
     }
 
     @Override

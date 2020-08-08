@@ -17,6 +17,11 @@ public class Competition extends Entity{
 
     private List<Sportsman> sportsmen = new ArrayList<>();
     private List<Organizer> organizers = new ArrayList<>();
+    private List<SportFacility> sportFacilities = new ArrayList<>();
+
+    public boolean isThereSportFacilityWithSuchId(int id){
+        return sportFacilities.stream().anyMatch(sportFacility -> sportFacility.getId() == id);
+    }
 
     public void addNewOrganizer(Organizer organizer){
         organizers.add(organizer);
@@ -26,8 +31,61 @@ public class Competition extends Entity{
         organizers.remove(organizer);
     }
 
+
     public void removeOrganizerById(Integer id){
         organizers.removeIf( organizer -> organizer.getId().intValue() == id);
+    }
+
+    public void removeSportFacilityById(Integer id){
+        sportFacilities.removeIf( sportFacility -> sportFacility.getId().intValue() == id);
+    }
+
+    public void addNewSportFacility(SportFacility sportFacility){
+        sportFacilities.add(sportFacility);
+    }
+
+    public void removeSportFacility(SportFacility sportFacility){
+        sportFacilities.remove(sportFacility);
+    }
+
+    public void addNewCourt(Court court){
+        sportFacilities.add(court.getSportFacility());
+    }
+
+    public void removeCourt(Court court){
+        sportFacilities.remove(court.getSportFacility());
+    }
+
+    public void addNewStadium(Stadium stadium){
+        sportFacilities.add(stadium.getSportFacility());
+    }
+
+    public void removeStadium(Stadium stadium){
+        sportFacilities.remove(stadium.getSportFacility());
+    }
+
+    public void addNewIceArena(IceArena iceArena){
+        sportFacilities.add(iceArena.getSportFacility());
+    }
+
+    public void removeIceArena(IceArena iceArena){
+        sportFacilities.remove(iceArena.getSportFacility());
+    }
+
+    public void addNewVolleyballArena(VolleyballArena volleyballArena){
+        sportFacilities.add(volleyballArena.getSportFacility());
+    }
+
+    public void removeVolleyballArena(VolleyballArena volleyballArena){
+        sportFacilities.remove(volleyballArena.getSportFacility());
+    }
+
+    public void addNewSportsman(Sportsman sportsman){
+        if(sportsmen.stream().noneMatch(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue()))
+            sportsmen.add(sportsman);
+    }
+    public void removeSportsman(Sportsman sportsman){
+        sportsmen.removeIf(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue());
     }
 
     private String dateProperty;

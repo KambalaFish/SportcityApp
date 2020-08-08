@@ -18,6 +18,7 @@ import sportcityApp.services.pagination.PageInfo;
 import sportcityApp.utils.RequestExecutor;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -84,7 +85,6 @@ public abstract class AbstractEntityInputFormBuilder <E extends Entity> implemen
             String errorMessage
     ) {
         return () -> {
-
             try {
                 Page<X> page = entityService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
                 Objects.requireNonNull(page, errorMessage);
@@ -96,7 +96,6 @@ public abstract class AbstractEntityInputFormBuilder <E extends Entity> implemen
             } catch (Exception e) {
                 throw new RuntimeException(errorMessage, e);
             }
-
         };
     }
 
@@ -130,7 +129,6 @@ public abstract class AbstractEntityInputFormBuilder <E extends Entity> implemen
                         ),
                         requestExecutor);
                 break;
-
         }
 
         fillInputForm(entity, formType, isContextWindow, controller);

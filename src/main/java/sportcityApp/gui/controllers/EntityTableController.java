@@ -10,6 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import sportcityApp.entities.SportFacility;
 import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.interfaces.ContextMenuAction;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
@@ -74,7 +75,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
     private boolean isContextWindow;
     private boolean isLinkingWindow;
     private boolean isOwnedWindow;
-
+    private boolean isChangeItemVisible;
     public void setIsLinkingWindow(boolean value){
         isLinkingWindow = value;
     }
@@ -100,6 +101,9 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         this.entityRemover = entityRemover;
     }
 
+    public void setIsChangeItemVisible(boolean isChangeItemVisible){
+        this.isChangeItemVisible = isChangeItemVisible;
+    }
 
     /*метод для правого клика на строку в TableView и дальнейшего выбора опций подробнее изменить удалить. пока что скипаем*/
 
@@ -142,7 +146,8 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         deleteItem.setOnAction(event -> {
             if(isLinkingWindow){
                 if(!isOwnedWindow)
-                    frontendSideLinkRemover.removeLink(entityTable.getSelectionModel().getSelectedItem().getId());
+                    if(frontendSideLinkRemover!=null)
+                        frontendSideLinkRemover.removeLink(entityTable.getSelectionModel().getSelectedItem().getId());
                 removeLink(supplierForM2M.get() ,entityTable.getSelectionModel().getSelectedItem());
             } else {
                 T entity = entityTable.getSelectionModel().getSelectedItem();
@@ -156,7 +161,10 @@ public class EntityTableController <T extends Entity, X extends Entity> {
             contextMenu.getItems().add(infoItem);
         }
 
-        contextMenu.getItems().addAll(changeItem, deleteItem);
+        if(isChangeItemVisible)
+            contextMenu.getItems().add(changeItem);
+
+        contextMenu.getItems().add(deleteItem);
         entityTable.setContextMenu(contextMenu);
     }
 
@@ -220,6 +228,9 @@ public class EntityTableController <T extends Entity, X extends Entity> {
     @FXML
     private Button searchButton;
 
+    @FXML
+    private Button createButton;
+
     private final ObservableList<T> entityObservableList = FXCollections.observableArrayList();
 
     private PageInfo pageInfo;
@@ -257,6 +268,10 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         this.supplierForM2M = supplierForM2M;
     }
 
+    public void disableCreateButton(){
+        //createButton.setDisable(true);
+        createButton.setVisible(false);
+    }
 
 
     public void init(

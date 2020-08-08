@@ -33,6 +33,10 @@ public class RequestExecutor {
         executorService.shutdownNow();
     }
 
+    public void submit(Runnable runnable){
+        executorService.submit(runnable);
+    }
+
     public class RequestBuilder<T>{
 
         private final ResponseBodySupplier<T> responseBodySupplier;

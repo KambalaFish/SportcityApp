@@ -12,7 +12,7 @@ import java.util.Map;
 @Setter
 public abstract class Entity implements Cloneable{
 
-    private  Integer id;
+    private Integer id;
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
     private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();

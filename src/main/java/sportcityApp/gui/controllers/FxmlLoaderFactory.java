@@ -7,6 +7,7 @@ import java.net.URL;
 
 @UtilityClass
 public class FxmlLoaderFactory {
+
     public FXMLLoader createMainViewLoader(){
         return createFxmlLoader("/gui/main_view.fxml");
     }
@@ -25,6 +26,10 @@ public class FxmlLoaderFactory {
 
     public FXMLLoader createEntityInfoLoader(){
         return createFxmlLoader("/gui/entity_info.fxml");
+    }
+
+    public FXMLLoader createSportFacilityInputFormLoader(){
+        return createFxmlLoader("/gui/facility_input_form.fxml");
     }
 
     private FXMLLoader createFxmlLoader(String fxmlName) {

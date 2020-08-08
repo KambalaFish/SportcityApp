@@ -40,7 +40,6 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
                 Sport::getChoiceItems
         );
         controller.addIntegerField("Разряд", ability.getLevel(), ability::setLevel);
-
     }
 
     @Override

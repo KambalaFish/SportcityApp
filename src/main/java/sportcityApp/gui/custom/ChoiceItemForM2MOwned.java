@@ -2,6 +2,7 @@ package sportcityApp.gui.custom;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import sportcityApp.gui.controllers.EntityInputFormController;
 
 @AllArgsConstructor
 /*E - это владелец отношение(спортсмен), T - это замапленная сторона(тренера)*/
@@ -22,7 +23,10 @@ public class ChoiceItemForM2MOwned<E, T> {
     public EntityFieldSetter<T> fieldSetter;
     public EntityFieldPreviousRemover<T> fieldRemover;
 
-
+    /*
+    public EntityFieldSetter<E> fieldSetterFrontend;
+    public EntityInputFormController.EntityFieldPreviousRemover<E> fieldRemoverFrontend;
+    */
 
     @Override
     public String toString() {

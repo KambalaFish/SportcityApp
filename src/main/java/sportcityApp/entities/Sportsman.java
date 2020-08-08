@@ -14,6 +14,7 @@ public class Sportsman extends Entity {
 
     List<Coach> coaches = new ArrayList<>();
     List<Competition> competitions = new ArrayList<>();
+    List<Ability> abilities = new ArrayList<>();/*new*/
 
     public void addNewCoach(Coach coach){
         if(!coaches.contains(coach))
