@@ -9,6 +9,8 @@ import sportcityApp.gui.forms.input.impl.AbstractLinkingInputFormBuilderForOwned
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
+import java.util.function.Predicate;
+
 public class CompetitionForOrganizerInputFormBuilder extends AbstractLinkingInputFormBuilderForOwned<Competition, Organizer> {
 
     public CompetitionForOrganizerInputFormBuilder(RequestExecutor requestExecutor){
@@ -22,8 +24,13 @@ public class CompetitionForOrganizerInputFormBuilder extends AbstractLinkingInpu
 
     @Override
     protected void fillInputForm(Organizer entity, EntityInputFormController<Competition> controller) {
+
+        Predicate<Competition> predicate = competition -> competition.getOrganizers().stream().noneMatch(organizer -> organizer.getId().intValue() == entity.getId().intValue());
+
+
         ChoiceItemSupplierForM2MOwned<Competition, Organizer> competitionForOrganizerSupplier = makeChoiceItemSupplierFromEntitiesForM2MOwned(
                 ServiceFactory.getCompetitionService(),
+                predicate,
                 competition -> new ChoiceItemForM2MOwned<>(competition, competition.getName(), competition::addNewOrganizer, competition::removeOrganizer),
                 "Не удалось загрузить список соревнований"
         );

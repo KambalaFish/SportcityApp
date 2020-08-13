@@ -11,13 +11,23 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
+import sportcityApp.entities.Entity;
+import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.custom.DateTimePicker;
+import sportcityApp.services.Service;
+import sportcityApp.services.pagination.Page;
+import sportcityApp.services.pagination.PageInfo;
+import sportcityApp.utils.LocalDateFormatter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public class FilterBoxController<T> {
 
@@ -36,9 +46,13 @@ public class FilterBoxController<T> {
         void setField(X value);
     }
 
+    public interface EntityFieldRemover<X>{
+        void removeField(X value);
+    }
+
     private final List<TextField> textFields = new ArrayList<>();
     private final List<TextField> integerFields = new ArrayList<>();
-    //private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
+    private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
 
@@ -107,7 +121,7 @@ public class FilterBoxController<T> {
         addField(integerField, columnIndex, rowIndex, colSpan);
         integerFields.add(integerField);
     }
-    /*
+
     public void addDateField(
             EntityFieldSetter<Date> fieldSetter,
             int columnIndex, int rowIndex, int colSpan
@@ -125,13 +139,12 @@ public class FilterBoxController<T> {
         addField(dateTimePicker, columnIndex, rowIndex, colSpan);
         dateTimePickers.add(dateTimePicker);
     }
-    */
+
     @SneakyThrows
     public <X> void addChoiceBox(
             EntityFieldSetter<X> fieldSetter,
             ChoiceItemSupplier<X> itemSupplier,
             int columnIndex, int rowIndex, int colSpan
-
     ) {
         ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "—");
         var items = itemSupplier.getItems();
@@ -168,6 +181,22 @@ public class FilterBoxController<T> {
         grid.add(label, columnIndex, rowIndex, colSpan, 1);
     }
 
+    public void addCheckBox(
+            String name,
+            EntityFieldSetter<Sport> fieldSetter, EntityFieldRemover<Sport> fieldRemover, Sport sport,
+            int columnIndex, int rowIndex, int colSpan
+    ){
+        CheckBox checkBox = new CheckBox(name);
+        checkBox.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+            if (newValue){
+                fieldSetter.setField(sport);
+            } else
+                fieldRemover.removeField(sport);
+        });
+        grid.add(checkBox, columnIndex, rowIndex, colSpan, 1);
+        checkBoxes.add(checkBox);
+    }
+
     private void addField(
             Control field,
             int columnIndex, int rowIndex, int colSpan
@@ -180,6 +209,8 @@ public class FilterBoxController<T> {
         grid.add(field, columnIndex, rowIndex, colSpan, 1);
     }
 
+
+
     @FXML
     private void clearFields() {
         for (var textField: textFields) {
@@ -190,11 +221,11 @@ public class FilterBoxController<T> {
             integerField.setText("");
         }
 
-        /*
+
         for (var dateTimePicker: dateTimePickers) {
             dateTimePicker.valueProperty().setValue(null);
         }
-        */
+
 
         for (var rawChoiceBox: choiceBoxes.keySet()) {
             ComboBox<ChoiceItem<?>> choiceBox = rawChoiceBox;

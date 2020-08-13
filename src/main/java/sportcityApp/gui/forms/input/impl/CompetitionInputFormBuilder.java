@@ -16,26 +16,38 @@ public class CompetitionInputFormBuilder extends AbstractEntityInputFormBuilder<
 
     @Override
     protected void fillInputForm(Competition entity, FormType formType, boolean isContextWindow, EntityInputFormController<Competition> controller) {
-        controller.addDateField(
-                "Дата проведения",
-                entity.getDate(),
-                entity::setDate
-        );
-        //if (formType==FormType.CREATION_FORM)
-            controller.addChoiceBox(
-                    "Вид спорта",
-                    entity.getSport(),
-                    entity::setSport,
-                    null,
-                    Sport::getChoiceItems
-            );
-        /*то есть выходит, если что-то поменяли в соревновании, например вид спорта, то все связи со спортивными сооружениями и спортсменами удаляются*/
-        Consumer<Competition> preparation = competition -> {
-            competition.getSportFacilities().clear();
-            competition.getSportsmen().clear();
-        };
+        controller.addTextField(
+                "Название",
+                "",
+                entity::setName
 
-        controller.setPreparation(preparation);
+        );
+        controller.addDateField(
+                "Дата начала",
+                entity.getBeginningDate(),
+                entity::setBeginningDate
+
+        );
+        controller.addDateField(
+                "Дата окончания",
+                entity.getFinishDate(),
+                entity::setFinishDate
+                );
+        controller.addChoiceBox(
+                "Вид спорта",
+                entity.getSport(),
+                entity::setSport,
+                null,
+                Sport::getChoiceItems
+        );
+        /*то есть выходит, если что-то поменяли в соревновании, например вид спорта, то все связи со спортивными сооружениями и спортсменами удаляются*/
+        if (isContextWindow) {
+            Consumer<Competition> preparation = competition -> {
+                competition.getSportFacilities().clear();
+                competition.getSportsmen().clear();
+            };
+            controller.setPreparation(preparation);
+        }
     }
 
     @Override

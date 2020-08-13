@@ -23,10 +23,6 @@ public class ChoiceItemForM2MOwned<E, T> {
     public EntityFieldSetter<T> fieldSetter;
     public EntityFieldPreviousRemover<T> fieldRemover;
 
-    /*
-    public EntityFieldSetter<E> fieldSetterFrontend;
-    public EntityInputFormController.EntityFieldPreviousRemover<E> fieldRemoverFrontend;
-    */
 
     @Override
     public String toString() {

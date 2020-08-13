@@ -15,6 +15,14 @@ public class IceArena extends Entity{
 
     private Integer square;
 
+    public void addNewCompetition(Competition competition){
+        sportFacility.addNewCompetition(competition);
+    }/*new*/
+
+    public void removeCompetition(Competition competition){
+        sportFacility.removeCompetition(competition);
+    }/*new*/
+
     @Override
     public IceArena clone(){
         var clone = (IceArena) super.clone();

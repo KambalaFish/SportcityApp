@@ -24,11 +24,7 @@ public class StadiumForCompetitionInputFormBuilder extends AbstractLinkingInputF
 
     @Override
     protected void fillInputForm(Competition entity, EntityInputFormController<Competition> controller) {
-        Predicate<Stadium> predicate = stadium -> {
-            boolean result;
-            result = entity.getSportFacilities().stream().anyMatch(sportFacility -> sportFacility.getId().intValue()==stadium.getId().intValue());
-            return !result;
-        };
+        Predicate<Stadium> predicate = stadium -> entity.getSportFacilities().stream().noneMatch(sportFacility -> sportFacility.getId().intValue()==stadium.getId().intValue());
         ChoiceItemSupplier<Stadium> stadiumSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getStadiumService(),
                 predicate,

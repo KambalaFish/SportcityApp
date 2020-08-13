@@ -17,12 +17,17 @@ public class Coach extends Entity{
     List<Sportsman> sportsmen = new ArrayList<>();
 
     public void addNewSportsman(Sportsman sportsman){
-        sportsmen.add(sportsman);
+        if(sportsmen.stream().noneMatch(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue()))
+            sportsmen.add(sportsman);
     }
 
     public void removeSportsman(Sportsman sportsman){
+        sportsmen.removeIf(sportsman1 -> sportsman1.getId().intValue()==sportsman.getId().intValue());
+        /*
         if(sportsmen.contains(sportsman))
             sportsmen.remove(sportsman);
+
+         */
     }
 
     @JsonIgnore

@@ -16,6 +16,15 @@ public class VolleyballArena extends Entity{
     private Integer net_height;
     private Integer net_width;
 
+    /*new*/
+    public void addNewCompetition(Competition competition){
+        sportFacility.addNewCompetition(competition);
+    }
+    /*new*/
+    public void removeCompetition(Competition competition){
+        sportFacility.removeCompetition(competition);
+    }
+
     @Override
     public VolleyballArena clone(){
         var clone = (VolleyballArena) super.clone();

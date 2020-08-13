@@ -43,7 +43,7 @@ public abstract class AbstractLinkingInputFormBuilderForOwned <E extends Entity,
         Parent rootNode = fxmlLoader.load();
         EntityInputFormController<E> controller = fxmlLoader.getController();
 
-        controller.init(null/*entity*/,
+        controller.init(null,
                 entityService::save,
                 onSuccessAction,
                 errorMessage -> AlertDialogFactory.showErrorAlertDialog(

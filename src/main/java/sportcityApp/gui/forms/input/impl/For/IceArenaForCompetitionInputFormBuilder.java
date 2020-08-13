@@ -25,11 +25,8 @@ public class IceArenaForCompetitionInputFormBuilder extends AbstractLinkingInput
     @Override
     protected void fillInputForm(Competition entity, EntityInputFormController<Competition> controller) {
 
-        Predicate<IceArena> predicate = iceArena -> {
-            boolean result;
-            result = entity.getSportFacilities().stream().anyMatch(sportFacility -> sportFacility.getId().intValue()==iceArena.getId().intValue());
-            return !result;
-        };
+        Predicate<IceArena> predicate = iceArena -> entity.getSportFacilities().stream().noneMatch(sportFacility -> sportFacility.getId().intValue()==iceArena.getId().intValue());
+
 
         ChoiceItemSupplier<IceArena> iceArenaSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getIceArenaService(),

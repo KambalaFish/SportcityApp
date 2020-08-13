@@ -16,6 +16,14 @@ public class Court extends Entity{
 
     private CoverageType coverageType;
     private String coverageTypeProperty;
+    /*new*/
+    public void addNewCompetition(Competition competition){
+        sportFacility.addNewCompetition(competition);
+    }
+    /*new*/
+    public void removeCompetition(Competition competition){
+        sportFacility.removeCompetition(competition);
+    }
 
     @Override
     public Court clone(){

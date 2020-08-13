@@ -12,7 +12,8 @@ import java.util.*;
 public class Competition extends Entity{
 
     private String name;
-    private Date date;
+    private Date beginningDate;
+    private Date finishDate;
     private Sport sport;
 
     private List<Sportsman> sportsmen = new ArrayList<>();
@@ -80,15 +81,8 @@ public class Competition extends Entity{
         sportFacilities.remove(volleyballArena.getSportFacility());
     }
 
-    public void addNewSportsman(Sportsman sportsman){
-        if(sportsmen.stream().noneMatch(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue()))
-            sportsmen.add(sportsman);
-    }
-    public void removeSportsman(Sportsman sportsman){
-        sportsmen.removeIf(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue());
-    }
-
-    private String dateProperty;
+    private String beginningDateProperty;
+    private String finishDateProperty;
     private String sportProperty;
 
     @Override
@@ -100,7 +94,8 @@ public class Competition extends Entity{
     public void calculateProperties(){
         super.calculateProperties();
         sportProperty = Sport.toLocalizedString(sport);
-        dateProperty = LocalDateFormatter.getFormattedDate(date);
+        beginningDateProperty = LocalDateFormatter.getFormattedDate(beginningDate);
+        finishDateProperty = LocalDateFormatter.getFormattedDate(finishDate);
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -109,12 +104,14 @@ public class Competition extends Entity{
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("name", "Название");
-        propertyNames.put("dateProperty", "Дата проведения");
+        propertyNames.put("beginningDateProperty", "Дата начала");
+        propertyNames.put("finishDateProperty", "Дата окончания");
         propertyNames.put("sportProperty", "Вид спорта");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("name", "Название");
-        sortPropertyNames.put("date", "Дата проведения соревнования");
+        sortPropertyNames.put("beginningDate", "Дата начала");
+        sortPropertyNames.put("finishDate", "Дата окончания");
     }
 
     public static Map<String, String> getPropertyNames(){
@@ -126,3 +123,4 @@ public class Competition extends Entity{
     }
 
 }
+

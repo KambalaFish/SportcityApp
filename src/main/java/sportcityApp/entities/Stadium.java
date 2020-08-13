@@ -15,6 +15,14 @@ public class Stadium extends Entity{
 
     private Integer capacity;
 
+    /*new*/
+    public void addNewCompetition(Competition competition){
+        sportFacility.addNewCompetition(competition);
+    }
+    /*new*/
+    public void removeCompetition(Competition competition){
+        sportFacility.removeCompetition(competition);
+    }
 
     @Override
     public Stadium clone(){

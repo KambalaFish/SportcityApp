@@ -15,6 +15,16 @@ public class SportFacility extends Entity{
     private VolleyballArena volleyballArena;
     private List<Competition> competitions = new ArrayList<>();
 
+    public void addNewCompetition(Competition competition){
+        if (competitions.stream().noneMatch(competition1 -> competition1.getId().intValue() == competition.getId().intValue()))
+            competitions.add(competition);
+
+    }
+
+    public void removeCompetition(Competition competition){
+        competitions.removeIf(competition1 -> competition1.getId().intValue() == competition.getId().intValue());
+    }
+
     @Override
     public SportFacility clone(){
         var clone = (SportFacility) super.clone();

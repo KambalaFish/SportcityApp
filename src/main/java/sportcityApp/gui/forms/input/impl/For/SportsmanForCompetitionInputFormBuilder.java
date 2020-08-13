@@ -1,5 +1,6 @@
 package sportcityApp.gui.forms.input.impl.For;
 
+import javafx.application.Platform;
 import sportcityApp.entities.Competition;
 import sportcityApp.entities.Sportsman;
 import sportcityApp.gui.controllers.EntityInputFormController;
@@ -26,8 +27,10 @@ public class SportsmanForCompetitionInputFormBuilder extends AbstractLinkingInpu
     protected void fillInputForm(Competition entity, EntityInputFormController<Sportsman> controller) {
         Predicate<Sportsman> predicate = sportsman -> {
             boolean firstCondition = sportsman.getAbilities().stream().anyMatch(ability -> ability.getSport() == entity.getSport());
-            boolean secondCondition = entity.getSportsmen().stream().noneMatch(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue());
-            return firstCondition & secondCondition;
+            boolean secondCondition = sportsman.getCompetitions().stream().anyMatch(competition ->  competition.getId().intValue() == entity.getId().intValue());
+            //boolean altertnativeSecondCondition = ServiceFactory.getCompetitionService().getById(entity.getId()).getBody().getSportsmen().stream().noneMatch(sportsman1 -> sportsman1.getId().intValue() == sportsman.getId().intValue());
+            //return firstCondition & altertnativeSecondCondition;
+            return firstCondition & !secondCondition;
         };
 
         ChoiceItemSupplierForM2MOwned<Sportsman, Competition> sportsmanForCompetitionSupplier = makeChoiceItemSupplierFromEntitiesForM2MOwned(
@@ -37,5 +40,6 @@ public class SportsmanForCompetitionInputFormBuilder extends AbstractLinkingInpu
                 "Не удалось загрузить список спортсменов"
         );
         controller.addChoiceBoxForM2MOwned("Спортсмен", null, entity, sportsmanForCompetitionSupplier);
+
     }
 }

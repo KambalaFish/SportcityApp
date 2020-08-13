@@ -70,6 +70,10 @@ public class EntityInputFormController<T> {
 
     private T entity;
 
+    public T getEntity(){
+        return entity;
+    }
+
     public void setEntity(T entity){
         this.entity = entity;
     }
@@ -353,8 +357,6 @@ public class EntityInputFormController<T> {
         addField(name, choiceBox);
     }
 
-
-
     private void addField(String name, Control field){
         field.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
@@ -461,7 +463,6 @@ public class EntityInputFormController<T> {
         if (!fieldsAreValid) {
             return;
         }
-
         disableComponent();
         requestExecutor
                 .makeRequest(() ->{

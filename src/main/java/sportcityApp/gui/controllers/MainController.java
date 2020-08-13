@@ -12,6 +12,8 @@ import sportcityApp.entities.*;
 import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
 import sportcityApp.gui.forms.filtering.FilterBoxBuilder;
+import sportcityApp.gui.forms.filtering.impl.CoachFilterBoxBuilder;
+import sportcityApp.gui.forms.filtering.impl.CompetitionFilterBoxBuilder;
 import sportcityApp.gui.forms.filtering.impl.SportsmanFilterBoxBuilder;
 import sportcityApp.gui.forms.filtering.impl.StadiumFilterBoxBuilder;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
@@ -20,9 +22,7 @@ import sportcityApp.gui.forms.input.LinkingInputFormBuilderForOwned;
 import sportcityApp.gui.forms.input.impl.*;
 import sportcityApp.gui.forms.input.impl.For.*;
 import sportcityApp.services.*;
-import sportcityApp.services.filters.Filter;
-import sportcityApp.services.filters.SportsmanFilter;
-import sportcityApp.services.filters.StadiumFilter;
+import sportcityApp.services.filters.*;
 import sportcityApp.utils.LocalDateFormatter;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
@@ -84,8 +84,8 @@ public class MainController {
                 coachService,
                 new CoachInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                new CoachFilterBoxBuilder(),
+                CoachFilter::new,
                 true
         );
 
@@ -146,7 +146,6 @@ public class MainController {
                     sportsman::removeCompetitionById,
                     true
             );
-
 
             return EntityInfoWindowBuilder.
                     newInfoWindow(sportsman.getName()).
@@ -292,8 +291,8 @@ public class MainController {
                 competitionService,
                 new CompetitionInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                new CompetitionFilterBoxBuilder(),
+                CompetitionFilter::new,
                 true
                 );
     }

@@ -24,11 +24,7 @@ public class CourtForCompetitionInputFormBuilder extends AbstractLinkingInputFor
 
     @Override
     protected void fillInputForm(Competition entity, EntityInputFormController<Competition> controller) {
-        Predicate<Court> predicate = court -> {
-            boolean result;
-            result = entity.getSportFacilities().stream().anyMatch(sportFacility -> sportFacility.getId().intValue() == court.getId().intValue());
-            return !result;
-        };
+        Predicate<Court> predicate = court -> entity.getSportFacilities().stream().noneMatch(sportFacility -> sportFacility.getId().intValue() == court.getId().intValue());
         ChoiceItemSupplier<Court> courtSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getCourtService(),
                 predicate,

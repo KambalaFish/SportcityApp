@@ -13,6 +13,17 @@ public class Organizer extends Entity{
 
     private List<Competition> competitions = new ArrayList<>();
 
+    /*new*/
+    public void addNewCompetition(Competition competition){
+        if (competitions.stream().noneMatch(competition1 -> competition1.getId().intValue() == competition.getId().intValue()))
+            competitions.add(competition);
+
+    }
+    /*new*/
+    public void removeCompetition(Competition competition){
+        competitions.removeIf(competition1 -> competition1.getId().intValue() == competition.getId().intValue());
+    }
+
     @Override
     public Organizer clone(){
         var clone = (Organizer) super.clone();

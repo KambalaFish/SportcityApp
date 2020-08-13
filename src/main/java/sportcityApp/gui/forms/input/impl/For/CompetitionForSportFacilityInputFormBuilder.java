@@ -26,25 +26,19 @@ public class CompetitionForSportFacilityInputFormBuilder extends AbstractLinking
     @Override
     protected void fillInputForm(SportFacility entity, EntityInputFormController<Competition> controller) {
         Predicate<Competition> predicate = competition -> {
-            VolleyballArena volleyballArena = entity.getVolleyballArena();
-            if (volleyballArena!=null & competition.getSport() == Sport.volleyball)
-                return true;
-            Court court = entity.getCourt();
-            if (court!=null & competition.getSport() == Sport.tennis)
-                return true;
-            IceArena iceArena = entity.getIceArena();
-            if (iceArena!=null & competition.getSport() == Sport.hockey)
-                return true;
-            Stadium stadium = entity.getStadium();
-            if (stadium!=null & competition.getSport()==Sport.football)
-                return true;
-            if (
-                    volleyballArena == null &
-                            court == null &
-                            iceArena == null &
-                            stadium == null
-            )
-                return true;
+
+            if (entity.getVolleyballArena()!=null & competition.getSport() == Sport.volleyball)
+                return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
+
+            if (entity.getCourt()!=null & competition.getSport() == Sport.tennis)
+                return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
+
+            if (entity.getIceArena()!=null & competition.getSport() == Sport.hockey)
+                return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
+
+            if (entity.getStadium()!=null & competition.getSport()==Sport.football)
+                return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
+
             return false;
         };
 

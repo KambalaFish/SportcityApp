@@ -24,11 +24,8 @@ public class VolleyballArenaForCompetitionInputFormBuilder extends AbstractLinki
 
     @Override
     protected void fillInputForm(Competition entity, EntityInputFormController<Competition> controller) {
-        Predicate<VolleyballArena> predicate = volleyballArena -> {
-            boolean result;
-            result = entity.getSportFacilities().stream().anyMatch(sportFacility -> sportFacility.getId().intValue() == volleyballArena.getId().intValue());
-            return !result;
-        };
+        Predicate<VolleyballArena> predicate = volleyballArena -> entity.getSportFacilities().stream().noneMatch(sportFacility -> sportFacility.getId().intValue() == volleyballArena.getId().intValue());
+
         ChoiceItemSupplier<VolleyballArena> volleyballArenaSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getVolleyballArenaService(),
                 predicate,
