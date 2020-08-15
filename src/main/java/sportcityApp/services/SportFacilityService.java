@@ -2,6 +2,7 @@ package sportcityApp.services;
 
 import sportcityApp.entities.Competition;
 import sportcityApp.entities.SportFacility;
+import sportcityApp.services.filters.CompetitionOfSFFilter;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
 
@@ -13,4 +14,5 @@ public interface SportFacilityService extends Service<SportFacility>{
 
     ServiceResponse<Integer> getLastIdNumber();
 
+    ServiceResponse<Page<Competition>> getCompetitionsByFilter(CompetitionOfSFFilter filter, PageInfo pageInfo);
 }

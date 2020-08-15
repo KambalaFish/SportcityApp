@@ -6,6 +6,7 @@ import sportcityApp.entities.VolleyballArena;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.SportFacilityService;
 import sportcityApp.services.VolleyballArenaService;
+import sportcityApp.services.filters.CompetitionOfSFFilter;
 import sportcityApp.services.impl.api.VolleyballArenaServiceApi;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -33,6 +34,11 @@ public class VolleyballArenaServiceImpl extends AbstractCrudServiceImpl<Volleyba
     @Override
     public ServiceResponse<Void> removeCompetitionFromVolleyballArena(Integer volleyballArenaId, Integer competitionId) {
         return sportFacilityService.removeCompetitionFromSportFacility(volleyballArenaId, competitionId);
+    }
+
+    @Override
+    public ServiceResponse<Page<Competition>> getCompetitionsOfTheVolleyballArenaByFilter(CompetitionOfSFFilter filter, PageInfo pageInfo) {
+        return sportFacilityService.getCompetitionsByFilter(filter, pageInfo);
     }
 
     private VolleyballArenaServiceApi getServiceApi(){

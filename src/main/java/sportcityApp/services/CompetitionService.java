@@ -26,4 +26,7 @@ public interface CompetitionService extends Service<Competition>{
 
     ServiceResponse<Page<VolleyballArena>> getVolleyballArenas(Integer competitionId, PageInfo pageInfo);
 
+    ServiceResponse<Page<Sportsman>> getWinners(Integer competitionId, PageInfo pageInfo);
+
+    ServiceResponse<Void> removePrizeWinnerFromCompetition(Integer competitionId, Integer prizeWinnerId);
 }

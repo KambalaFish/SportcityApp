@@ -22,7 +22,8 @@ import java.util.List;
 
 public abstract class AbstractCrudServiceImpl<T extends Entity> implements Service<T> {
 
-    private static final Gson gson;
+    //private static final Gson gson;
+    protected static final Gson gson;
 
     private final String urlRoot;
     private final CrudServiceApi crudServiceApi;

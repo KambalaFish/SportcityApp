@@ -41,4 +41,10 @@ public interface CompetitionServiceApi extends CrudServiceApi{
 
     @GET("/competition/{id}/volleyballArenas")
     Call<Page<VolleyballArena>> getVolleyballArenas(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
+
+    @GET("/competition/{id}/prizeWinners")
+    Call<Page<Sportsman>> getWinners(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
+
+    @POST("/competition/{id}/removePrizeWinner/{prizeWinnerId}")
+    Call<Void> removePrizeWinnerFromCompetition(@Path("id") Integer competitionId, @Path("prizeWinnerId") Integer prizeWinnerId);
 }

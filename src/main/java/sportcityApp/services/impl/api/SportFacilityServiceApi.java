@@ -1,10 +1,8 @@
 package sportcityApp.services.impl.api;
 
+import com.google.gson.JsonElement;
 import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
-import retrofit2.http.QueryMap;
+import retrofit2.http.*;
 import sportcityApp.entities.Competition;
 import sportcityApp.services.pagination.Page;
 
@@ -20,4 +18,7 @@ public interface SportFacilityServiceApi extends CrudServiceApi{
 
     @GET("/sportFacility/lastIdNumber")
     Call<Integer> getLastIdNumber();
+
+    @POST("/sportFacility/competitionsByFilter")
+    Call<Page<Competition>> getCompetitionsByFilter(@Body JsonElement filter, @QueryMap Map<String, Object> pageInfo);
 }

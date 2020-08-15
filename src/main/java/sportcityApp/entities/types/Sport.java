@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum Sport {
-    football, tennis, hockey, volleyball;
+    football, tennis, hockey, volleyball, figureSkating, athletics;
 
     public static String toLocalizedString(Sport sport){
         switch (sport){
@@ -19,6 +19,10 @@ public enum Sport {
                 return "хоккей";
             case volleyball:
                 return "воллейбол";
+            case figureSkating:
+                return "фигурное катание";
+            case athletics:
+                return "легкая атлетика";
             default:
                 return "";
         }

@@ -5,6 +5,7 @@ import sportcityApp.entities.Court;
 import sportcityApp.services.CourtService;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.SportFacilityService;
+import sportcityApp.services.filters.CompetitionOfSFFilter;
 import sportcityApp.services.impl.api.CourtServiceApi;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -32,6 +33,11 @@ public class CourtServiceImpl extends AbstractCrudServiceImpl<Court> implements 
     @Override
     public ServiceResponse<Void> removeCompetitionFromCourt(Integer courtId, Integer competitionId) {
         return sportFacilityService.removeCompetitionFromSportFacility(courtId, competitionId);
+    }
+
+    @Override
+    public ServiceResponse<Page<Competition>> getCompetitionsOfTheCourtByFilter(CompetitionOfSFFilter filter, PageInfo pageInfo) {
+        return sportFacilityService.getCompetitionsByFilter(filter, pageInfo);
     }
 
     private CourtServiceApi getServiceApi(){

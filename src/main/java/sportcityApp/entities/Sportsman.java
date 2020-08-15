@@ -12,9 +12,10 @@ public class Sportsman extends Entity {
     private String name;
     private String club_name;
 
-    List<Coach> coaches = new ArrayList<>();
-    List<Competition> competitions = new ArrayList<>();
-    List<Ability> abilities = new ArrayList<>();/*new*/
+    private List<Coach> coaches = new ArrayList<>();
+    private List<Competition> competitions = new ArrayList<>();
+    private List<Ability> abilities = new ArrayList<>();/*new*/
+    private List<Competition> wonCompetitions = new ArrayList<>();
 
     public void addNewCoach(Coach coach){
         if(!coaches.contains(coach))

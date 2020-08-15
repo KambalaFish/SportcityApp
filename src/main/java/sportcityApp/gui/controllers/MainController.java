@@ -12,10 +12,7 @@ import sportcityApp.entities.*;
 import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
 import sportcityApp.gui.forms.filtering.FilterBoxBuilder;
-import sportcityApp.gui.forms.filtering.impl.CoachFilterBoxBuilder;
-import sportcityApp.gui.forms.filtering.impl.CompetitionFilterBoxBuilder;
-import sportcityApp.gui.forms.filtering.impl.SportsmanFilterBoxBuilder;
-import sportcityApp.gui.forms.filtering.impl.StadiumFilterBoxBuilder;
+import sportcityApp.gui.forms.filtering.impl.*;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilderForOwned;
@@ -69,7 +66,8 @@ public class MainController {
                     new SportsmanForCoachInputFormBuilder(requestExecutor),
                     () -> coach,
                     coachService::removeSportsmanFromCoach,
-                    true
+                    true,
+                    null
             );
 
 
@@ -193,6 +191,7 @@ public class MainController {
 
         ContextWindowBuilder<Competition> infoWindowBuilder = competition ->{
             EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(competition.getName());
+
             Node sportsmenOfTheCompetition = createInfoWindowEntityTableForM2MOwned(
                     Sportsman.getPropertyNames(),
                     Sportsman.getSortPropertyNames(),
@@ -201,9 +200,9 @@ public class MainController {
                     new SportsmanForCompetitionInputFormBuilder(requestExecutor),
                     () -> competition,
                     competitionService::removeSportsmanFromCompetition,
-                    true
+                    true,
+                    null
             );
-
             builder.addTab(sportsmenOfTheCompetition, "Спортсмены");
 
             Node organizersOfTheCompetition = createInfoWindowEntityTableForM2M(
@@ -281,6 +280,20 @@ public class MainController {
                 builder.addTab(volleyballArenasOfTheCompetition, "Волейбольные арены");
             }
 
+            Node winnersOfTheCompetition = createInfoWindowEntityTableForM2M(
+                    Sportsman.getPropertyNames(),
+                    Sportsman.getSortPropertyNames(),
+                    pageInfo -> competitionService.getWinners(competition.getId(), pageInfo),
+                    new SportsmanInputFormBuilder(requestExecutor),
+                    new PrizeWinnerForCompetition(requestExecutor),
+                    () -> competition,
+                    competitionService::removePrizeWinnerFromCompetition,
+                    competition::removePrizeWinnerById,
+                    true
+            );
+
+            builder.addTab(winnersOfTheCompetition, "Призеры");
+
             return builder.build();
         };
 
@@ -311,7 +324,8 @@ public class MainController {
                     new CompetitionForOrganizerInputFormBuilder(requestExecutor),
                     () -> organizer,
                     organizerService::removeCompetitionFromOrganizer,
-                    true
+                    true,
+                    null
             );
 
             return EntityInfoWindowBuilder.
@@ -342,6 +356,7 @@ public class MainController {
 
         ContextWindowBuilder<SportFacility> infoWindowBuilder = sportFacility ->{
             EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(sportFacility.getId().toString());
+            /*
             Node competitionsOfTheSportFacility = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -351,6 +366,22 @@ public class MainController {
                     () -> sportFacility,
                     sportFacilityService::removeCompetitionFromSportFacility,
                     true
+            );
+            */
+            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+            filter.setSportFacilityID(sportFacility.getId());
+            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+
+            Node competitionsOfTheSportFacility = createInfoWindowEntityTableForM2MOwned(
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
+                    pageInfo -> sportFacilityService.getCompetitionsByFilter(filter, pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForSportFacilityInputFormBuilder(requestExecutor),
+                    () -> sportFacility,
+                    sportFacilityService::removeCompetitionFromSportFacility,
+                    true,
+                    filterBox
             );
 
             builder.addTab(competitionsOfTheSportFacility, "Соревнования");
@@ -432,6 +463,7 @@ public class MainController {
 
         ContextWindowBuilder<Court> infoWindowBuilder = court -> {
 
+            /*
             Node competitionsOfTheCourt = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -440,7 +472,25 @@ public class MainController {
                     new CompetitionForCourtInputFormBuilder(requestExecutor),
                     () -> court,
                     courtService::removeCompetitionFromCourt,
-                    true
+                    true,
+                    null
+            );
+            */
+
+            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+            filter.setSportFacilityID(court.getId());
+            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+
+            Node competitionsOfTheCourt = createInfoWindowEntityTableForM2MOwned(
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
+                    pageInfo -> courtService.getCompetitionsOfTheCourtByFilter(filter, pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForCourtInputFormBuilder(requestExecutor),
+                    () -> court,
+                    courtService::removeCompetitionFromCourt,
+                    true,
+                    filterBox
             );
 
             return EntityInfoWindowBuilder.newInfoWindow("Корт № " + court.getId().toString()).
@@ -466,7 +516,7 @@ public class MainController {
         StadiumService stadiumService = ServiceFactory.getStadiumService();
 
         ContextWindowBuilder<Stadium> infoWindowBuilder = stadium -> {
-
+            /*
             Node competitionsOfTheStadium = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -475,10 +525,26 @@ public class MainController {
                     new CompetitionForStadiumInputFormBuilder(requestExecutor),
                     () -> stadium,
                     stadiumService::removeCompetitionFromStadium,
-                    true
+                    true,
+                    null
+            );
+            */
+            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+            filter.setSportFacilityID(stadium.getId());
+            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+            Node competitionsOfTheStadium = createInfoWindowEntityTableForM2MOwned(
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
+                    pageInfo -> stadiumService.getCompetitionsOfTheStadiumByFilter(filter, pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForStadiumInputFormBuilder(requestExecutor),
+                    () -> stadium,
+                    stadiumService::removeCompetitionFromStadium,
+                    true,
+                    filterBox
             );
 
-            return EntityInfoWindowBuilder.newInfoWindow("Стадин № " + stadium.getId().toString()).
+            return EntityInfoWindowBuilder.newInfoWindow("Стадион № " + stadium.getId().toString()).
                     addTab(competitionsOfTheStadium, "Соревнования").
                     build();
         };
@@ -501,7 +567,7 @@ public class MainController {
         IceArenaService iceArenaService = ServiceFactory.getIceArenaService();
 
         ContextWindowBuilder<IceArena> infoWindowBuilder = iceArena -> {
-
+            /*
             Node competitionsOfTheIceArena = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -510,7 +576,24 @@ public class MainController {
                     new CompetitionForIceArenaInputFormBuilder(requestExecutor),
                     () -> iceArena,
                     iceArenaService::removeCompetitionFromIceArena,
-                    true
+                    true,
+                    null
+            );
+            */
+            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+            filter.setSportFacilityID(iceArena.getId());
+            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+
+            Node competitionsOfTheIceArena = createInfoWindowEntityTableForM2MOwned(
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
+                    pageInfo -> iceArenaService.getCompetitionsOfTheIceArenaByFilter(filter, pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForIceArenaInputFormBuilder(requestExecutor),
+                    () -> iceArena,
+                    iceArenaService::removeCompetitionFromIceArena,
+                    true,
+                    filterBox
             );
 
             return EntityInfoWindowBuilder.newInfoWindow("Ледовая арена №" + iceArena.getId().toString()).
@@ -537,6 +620,7 @@ public class MainController {
         VolleyballArenaService volleyballArenaService = ServiceFactory.getVolleyballArenaService();
 
         ContextWindowBuilder<VolleyballArena> infoWindowBuilder = volleyballArena ->{
+            /*
             Node competitionsOfTheVolleyballArena = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -545,7 +629,24 @@ public class MainController {
                     new CompetitionForVolleyballArenaInputFormBuilder(requestExecutor),
                     () -> volleyballArena,
                     volleyballArenaService::removeCompetitionFromVolleyballArena,
-                    true
+                    true,
+                    null
+            );
+            */
+            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+            filter.setSportFacilityID(volleyballArena.getId());
+            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+
+            Node competitionsOfTheVolleyballArena = createInfoWindowEntityTableForM2MOwned(
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
+                    pageInfo -> volleyballArenaService.getCompetitionsOfTheVolleyballArenaByFilter(filter, pageInfo),
+                    new CompetitionInputFormBuilder(requestExecutor),
+                    new CompetitionForVolleyballArenaInputFormBuilder(requestExecutor),
+                    () -> volleyballArena,
+                    volleyballArenaService::removeCompetitionFromVolleyballArena,
+                    true,
+                    filterBox
             );
 
             return EntityInfoWindowBuilder.
@@ -722,7 +823,8 @@ public class MainController {
             LinkingInputFormBuilderForOwned<X> linkingInputFormBuilder,
             Supplier<X> supplier,
             EntityTableController.LinkRemover linkRemover,
-            boolean isChangeItemVisible
+            boolean isChangeItemVisible,
+            Node filterBox
     ) {
 
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
@@ -745,7 +847,7 @@ public class MainController {
                 entitySortPropertyNames,
                 true,
                 this::setStatusBarMessage,
-                null
+                filterBox
         );
         entityTableController.setIsLinkingWindow(true);
         entityTableController.setIsOwnedWindow(true);

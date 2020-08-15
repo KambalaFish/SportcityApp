@@ -27,7 +27,7 @@ public class CompetitionForIceArenaInputFormBuilder extends AbstractLinkingInput
     protected void fillInputForm(IceArena entity, EntityInputFormController<Competition> controller) {
 
         Predicate<Competition> predicate = competition -> {
-            if(competition.getSport() == Sport.hockey){
+            if(competition.getSport() == Sport.hockey | competition.getSport() == Sport.figureSkating){
                 boolean result;
                 result = competition.getSportFacilities().stream().anyMatch(sportFacility -> sportFacility.getId().intValue() == entity.getId().intValue());
                 return !result;

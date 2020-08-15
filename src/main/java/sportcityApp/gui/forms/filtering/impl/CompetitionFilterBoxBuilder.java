@@ -1,6 +1,7 @@
 package sportcityApp.gui.forms.filtering.impl;
 
 import sportcityApp.entities.Competition;
+import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.FilterBoxController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
@@ -12,7 +13,7 @@ public class CompetitionFilterBoxBuilder extends AbstractFilterBoxBuilder<Compet
     @Override
     protected void fillFilterBox(FilterBoxController<Competition> controller, Filter<Competition> filter) {
         CompetitionFilter competitionFilter = (CompetitionFilter) filter;
-        controller.setNumberOfRows(2);
+        controller.setNumberOfRows(3);
         controller.setNumberOfCols(8);
 
         controller.addLabel("Период проведения:", 0, 0, 2);
@@ -30,5 +31,8 @@ public class CompetitionFilterBoxBuilder extends AbstractFilterBoxBuilder<Compet
 
         controller.addLabel("Организатор:", 0, 1, 2);
         controller.addChoiceBox(competitionFilter::setOrganizerId, choiceItemSupplier, 2, 1, 3);
+
+        controller.addLabel("Вид спорта:", 0, 2, 2);
+        controller.addChoiceBox(competitionFilter::setSport, Sport::getChoiceItems, 2, 2, 3);
     }
 }

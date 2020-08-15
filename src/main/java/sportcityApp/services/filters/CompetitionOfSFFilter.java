@@ -5,13 +5,11 @@ import lombok.Setter;
 import sportcityApp.entities.Competition;
 import sportcityApp.entities.types.Sport;
 
-import java.util.Date;
-
 @Getter
 @Setter
-public class CompetitionFilter implements Filter<Competition>{
-    private Date minPeriod;
-    private Date maxPeriod;
-    private Integer organizerId;
+public class CompetitionOfSFFilter implements Filter<Competition>{
+
+    private Integer sportFacilityID;
     private Sport sport;
+
 }

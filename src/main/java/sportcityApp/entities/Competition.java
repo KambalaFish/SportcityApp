@@ -19,6 +19,7 @@ public class Competition extends Entity{
     private List<Sportsman> sportsmen = new ArrayList<>();
     private List<Organizer> organizers = new ArrayList<>();
     private List<SportFacility> sportFacilities = new ArrayList<>();
+    private List<Sportsman> prizeWinners = new ArrayList<>();
 
     public boolean isThereSportFacilityWithSuchId(int id){
         return sportFacilities.stream().anyMatch(sportFacility -> sportFacility.getId() == id);
@@ -38,7 +39,7 @@ public class Competition extends Entity{
     }
 
     public void removeSportFacilityById(Integer id){
-        sportFacilities.removeIf( sportFacility -> sportFacility.getId().intValue() == id);
+        sportFacilities.removeIf( sportFacility -> sportFacility.getId().intValue() == id.intValue());
     }
 
     public void addNewSportFacility(SportFacility sportFacility){
@@ -71,6 +72,19 @@ public class Competition extends Entity{
 
     public void removeIceArena(IceArena iceArena){
         sportFacilities.remove(iceArena.getSportFacility());
+    }
+
+    public void addNewPrizeWinner(Sportsman prizeWinner){
+        if(prizeWinners.stream().noneMatch(prizeWinner1 -> prizeWinner1.getId().intValue() == prizeWinner.getId().intValue()))
+            prizeWinners.add(prizeWinner);
+    }
+
+    public void removePrizeWinner(Sportsman prizeWinner){
+        prizeWinners.removeIf(prizeWinner1 -> prizeWinner1.getId().intValue() == prizeWinner.getId().intValue());
+    }
+
+    public void removePrizeWinnerById(Integer id){
+        prizeWinners.removeIf( prizeWinner -> prizeWinner.getId().intValue() == id.intValue());
     }
 
     public void addNewVolleyballArena(VolleyballArena volleyballArena){

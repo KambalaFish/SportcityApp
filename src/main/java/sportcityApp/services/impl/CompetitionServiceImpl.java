@@ -72,6 +72,18 @@ public class CompetitionServiceImpl extends AbstractCrudServiceImpl<Competition>
         return getServerResponse(call);
     }
 
+    @Override
+    public ServiceResponse<Page<Sportsman>> getWinners(Integer competitionId, PageInfo pageInfo) {
+        var call = getServiceApi().getWinners(competitionId, PageInfo.toMap(pageInfo));
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Void> removePrizeWinnerFromCompetition(Integer competitionId, Integer prizeWinnerId) {
+        var call = getServiceApi().removePrizeWinnerFromCompetition(competitionId, prizeWinnerId);
+        return getServerResponse(call);
+    }
+
 
     private CompetitionServiceApi getServiceApi(){
         return (CompetitionServiceApi) getCrudServiceApi();

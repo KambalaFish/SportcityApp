@@ -6,6 +6,7 @@ import sportcityApp.entities.Stadium;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.SportFacilityService;
 import sportcityApp.services.StadiumService;
+import sportcityApp.services.filters.CompetitionOfSFFilter;
 import sportcityApp.services.impl.api.StadiumServiceApi;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -33,6 +34,11 @@ public class StadiumServiceImpl extends AbstractCrudServiceImpl<Stadium> impleme
     @Override
     public ServiceResponse<Void> removeCompetitionFromStadium(Integer stadiumId, Integer competitionId) {
         return sportFacilityService.removeCompetitionFromSportFacility(stadiumId, competitionId);
+    }
+
+    @Override
+    public ServiceResponse<Page<Competition>> getCompetitionsOfTheStadiumByFilter(CompetitionOfSFFilter filter, PageInfo pageInfo) {
+        return sportFacilityService.getCompetitionsByFilter(filter, pageInfo);
     }
 
     private StadiumServiceApi getServiceApi(){

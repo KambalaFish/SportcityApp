@@ -4,6 +4,7 @@ import sportcityApp.entities.Competition;
 import sportcityApp.entities.SportFacility;
 import sportcityApp.services.ServiceResponse;
 import sportcityApp.services.SportFacilityService;
+import sportcityApp.services.filters.CompetitionOfSFFilter;
 import sportcityApp.services.impl.api.SportFacilityServiceApi;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -29,6 +30,12 @@ public class SportFacilityServiceImpl extends AbstractCrudServiceImpl<SportFacil
     @Override
     public ServiceResponse<Integer> getLastIdNumber() {
         var call = getServiceApi().getLastIdNumber();
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Page<Competition>> getCompetitionsByFilter(CompetitionOfSFFilter filter, PageInfo pageInfo) {
+        var call = getServiceApi().getCompetitionsByFilter(gson.toJsonTree(filter), PageInfo.toMap(pageInfo));
         return getServerResponse(call);
     }
 

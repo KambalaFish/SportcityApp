@@ -33,10 +33,10 @@ public class CompetitionForSportFacilityInputFormBuilder extends AbstractLinking
             if (entity.getCourt()!=null & competition.getSport() == Sport.tennis)
                 return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
 
-            if (entity.getIceArena()!=null & competition.getSport() == Sport.hockey)
+            if (entity.getIceArena()!=null & (competition.getSport() == Sport.hockey | competition.getSport() == Sport.figureSkating))
                 return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
 
-            if (entity.getStadium()!=null & competition.getSport()==Sport.football)
+            if (entity.getStadium()!=null & (competition.getSport()==Sport.football | competition.getSport()==Sport.athletics))
                 return competition.getSportFacilities().stream().noneMatch(sportFacility ->  sportFacility.getId().intValue() == entity.getId().intValue());
 
             return false;
