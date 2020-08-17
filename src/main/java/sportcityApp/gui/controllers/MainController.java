@@ -4,12 +4,14 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lombok.SneakyThrows;
 import sportcityApp.entities.*;
 import sportcityApp.entities.types.Sport;
+import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
 import sportcityApp.gui.forms.filtering.FilterBoxBuilder;
 import sportcityApp.gui.forms.filtering.impl.*;
@@ -25,6 +27,8 @@ import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
 import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -667,6 +671,59 @@ public class MainController {
         );
     }
 
+    public void openClubs(){
+        ClubService clubService = ServiceFactory.getClubService();
+
+        ClubFilterBoxBuilder clubFilterBoxBuilder = new ClubFilterBoxBuilder();
+        ClubFilter clubFilter = new ClubFilter();
+        clubFilter.setMinPeriod(Date.from(Instant.EPOCH));
+        clubFilter.setMaxPeriod(Date.from(Instant.now()));
+
+
+        ContextWindowBuilder<Club> infoWindowBuilder = club -> {
+            System.out.println("openClubs");
+
+            FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
+            Parent entityInfoRoot = null;
+            try {
+                entityInfoRoot = entityInfoLoader.load();
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            }
+            EntityInfoController controller = entityInfoLoader.getController();
+
+            requestExecutor
+                    .makeRequest(() -> clubService.getNumberOfSportsmanInTheClubDuringPeriod(club.getId(), clubFilter))
+                    .setOnSuccessAction(numberOfSportsmen -> Platform.runLater(() -> {
+                        controller.addInfoLine(String.format(
+                                "Число спортсменов, участвовавших в указанный периода: %d", numberOfSportsmen
+                        ));
+                    }))
+                    .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                            "Не удалось загрузить информацию о числе спортсменов",
+                            errorMessage
+                    ))
+                    .submit();
+
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(club.getName())
+                    .addTab(entityInfoRoot, "Инфо о спортсменах")
+                    .build();
+        };
+
+        createEntityTablev2(
+                "Клубы",
+                Club.getPropertyNames(),
+                Club.getSortPropertyNames(),
+                clubService,
+                new ClubInputFormBuilder(requestExecutor),
+                infoWindowBuilder,
+                clubFilterBoxBuilder,
+                () -> clubFilter,
+                true
+                );
+    }
+
     @SneakyThrows
     private <T extends Entity, X extends Entity> EntityTableController<T, X> createEntityTable(
             String tableName,
@@ -724,7 +781,7 @@ public class MainController {
 
         return controller;
 
-    } 
+    }
 
     private void setStatusBarMessage(String message) {
         Platform.runLater(() -> {
@@ -889,6 +946,71 @@ public class MainController {
         );
 
         return table;
+    }
+
+
+    @SneakyThrows
+    private <T extends Entity, X extends Entity> EntityTableController<T, X> createEntityTablev2(
+            String tableName,
+            Map<String, String> entityPropertyNames,
+            Map<String, String> entitySortPropertyNames,
+            Service<T> entityService,
+            EntityInputFormBuilder<T> inputFormBuilder,
+            ContextWindowBuilder<T> infoWindowBuilder,
+            FilterBoxBuilder<T> filterBoxBuilder,
+            Supplier<Filter<T>> newFilterSupplier,
+            boolean isChangeItemVisible)
+    {
+        FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
+        Node table = tableLoader.load();
+
+        Tab tableTab = new Tab(tableName);
+        tableTab.setContent(table);
+        tableTab.setOnClosed(event -> {
+            if (contentTabPane.getTabs().isEmpty()) {
+                contentTabPane.getTabs().add(defaultTab);
+            }
+        });
+
+        contentTabPane.getTabs().remove(defaultTab);
+        contentTabPane.getTabs().add(tableTab);
+        contentTabPane.getSelectionModel().select(tableTab);
+
+        EntityTableController<T, X> controller = tableLoader.getController();
+        controller.setInfoWindowBuilder(infoWindowBuilder);
+
+        controller.setIsChangeItemVisible(isChangeItemVisible);
+
+        controller.setEntityRemover(entityService::deleteById);
+
+        Node filterBox = null;
+        /*
+        if (filterBoxBuilder != null && newFilterSupplier != null) {
+            Filter<T> filter = newFilterSupplier.get();
+            filterBox = filterBoxBuilder.buildFilterBox(filter);
+            controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
+        } else {
+            controller.setEntitySource(entityService::getAll);
+        }
+        */
+        Filter<T> filter = newFilterSupplier.get();
+        filterBox = filterBoxBuilder.buildFilterBox(filter);
+        controller.setEntitySource(entityService::getAll);
+
+        controller.setRequestExecutor(requestExecutor);
+
+        controller.setEntityInputFormBuilder(inputFormBuilder);
+
+        controller.init(
+                entityPropertyNames,
+                entitySortPropertyNames,
+                false,
+                this::setStatusBarMessage,
+                filterBox
+        );
+
+        return controller;
+
     }
 
 }

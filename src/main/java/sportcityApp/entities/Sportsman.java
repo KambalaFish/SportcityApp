@@ -10,7 +10,8 @@ import java.util.*;
 public class Sportsman extends Entity {
 
     private String name;
-    private String club_name;
+    private Club club;
+    private String clubName;
 
     private List<Coach> coaches = new ArrayList<>();
     private List<Competition> competitions = new ArrayList<>();
@@ -51,6 +52,7 @@ public class Sportsman extends Entity {
     @Override
     public void calculateProperties() {
         super.calculateProperties();
+        clubName = club.getName();
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -59,11 +61,11 @@ public class Sportsman extends Entity {
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("name", "ФИО спортсмена");
-        propertyNames.put("club_name", "Клуб");
+        propertyNames.put("clubName", "Клуб");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("name", "Имя спортсмена");
-        sortPropertyNames.put("club_name", "Имя клуба");
+        sortPropertyNames.put("clubName", "Имя клуба");
     }
 
     public static Map<String, String> getPropertyNames(){

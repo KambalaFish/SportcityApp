@@ -1,9 +1,14 @@
 package sportcityApp.gui.forms.input.impl;
 
+import sportcityApp.entities.Club;
 import sportcityApp.entities.Sportsman;
 import sportcityApp.gui.controllers.EntityInputFormController;
+import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
+import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
+
+import java.util.function.Predicate;
 
 public class SportsmanInputFormBuilder extends AbstractEntityInputFormBuilder<Sportsman>{
 
@@ -13,8 +18,19 @@ public class SportsmanInputFormBuilder extends AbstractEntityInputFormBuilder<Sp
 
     @Override
     protected void fillInputForm(Sportsman sportsman, FormType formType, boolean isContextWindow, EntityInputFormController<Sportsman> controller) {
+        Predicate<Club> predicate = x -> true;
+        if (formType == FormType.EDIT_FORM) {
+            predicate = club -> sportsman.getClub().getId().intValue() != club.getId().intValue();
+        }
+        ChoiceItemSupplier<Club> choiceItemSupplier = makeChoiceItemSupplierFromEntities(
+                ServiceFactory.getClubService(),
+                predicate,
+                club -> new ChoiceItem<>(club, club.getName()),
+                "Не удалось загрузить список клубов"
+        );
+
         controller.addTextField("ФИО спортсмена", sportsman.getName(), sportsman::setName);
-        controller.addTextField("Спортивный клуб", sportsman.getClub_name(), sportsman::setClub_name);
+        controller.addChoiceBox("Клуб", sportsman.getClub(), sportsman::setClub, null, choiceItemSupplier);
     }
 
     @Override

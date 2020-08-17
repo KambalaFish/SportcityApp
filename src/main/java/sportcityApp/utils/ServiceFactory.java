@@ -48,4 +48,8 @@ public class ServiceFactory {
     public VolleyballArenaService getVolleyballArenaService(){
         return new VolleyballArenaServiceImpl(AppProperties.getServerHostname());
     }
+
+    public ClubService getClubService(){
+        return new ClubServiceImpl(AppProperties.getServerHostname());
+    }
 }
