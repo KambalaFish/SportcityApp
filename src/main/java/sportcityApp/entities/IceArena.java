@@ -13,7 +13,7 @@ public class IceArena extends Entity{
 
     private SportFacility sportFacility;
 
-    private Integer square;
+    private Double square;
 
     public void addNewCompetition(Competition competition){
         sportFacility.addNewCompetition(competition);

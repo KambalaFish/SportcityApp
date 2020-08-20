@@ -14,7 +14,7 @@ public class IceArenaInputFormBuilder extends AbstractEntityInputFormBuilder<Ice
 
     @Override
     protected void fillInputForm(IceArena entity, FormType formType, boolean isContextWindow, EntityInputFormController<IceArena> controller) {
-        controller.addIntegerField("Площадь", 0, entity::setSquare);
+        controller.addDoubleField("Площадь", 0d, entity::setSquare);
     }
 
     @Override

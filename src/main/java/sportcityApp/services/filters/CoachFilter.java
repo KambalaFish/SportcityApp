@@ -7,6 +7,6 @@ import sportcityApp.entities.types.Sport;
 
 @Getter
 @Setter
-public class CoachFilter implements Filter<Coach>{
+public class CoachFilter implements Filter/*<Coach>*/{
     private Sport sport;
 }

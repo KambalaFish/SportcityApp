@@ -8,7 +8,8 @@ import retrofit2.http.Path;
 
 public interface ClubServiceApi extends CrudServiceApi{
 
-    @POST("/club/{id}/numberOfSportsmanInTheClubDuringPeriod")
+    @POST("club/{id}/numberOfSportsmanInTheClubDuringPeriod")
     Call<Integer> getNumberOfSportsmanInTheClubDuringPeriod(@Path("id") Integer id, @Body JsonElement filter);
+
 
 }

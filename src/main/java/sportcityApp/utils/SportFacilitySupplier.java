@@ -1,10 +1,7 @@
 package sportcityApp.utils;
 
 import lombok.experimental.UtilityClass;
-import sportcityApp.entities.Court;
-import sportcityApp.entities.IceArena;
-import sportcityApp.entities.SportFacility;
-import sportcityApp.entities.Stadium;
+import sportcityApp.entities.*;
 
 import java.util.function.Supplier;
 
@@ -57,6 +54,18 @@ public class SportFacilitySupplier {
           sportFacility.setId(id);
           iceArena.setSportFacility(sportFacility);
           return iceArena;
+        };
+    }
+
+    public Supplier<VolleyballArena> getVolleyballArenaSupplier(){
+        return () -> {
+            Integer id = getId();
+            VolleyballArena volleyballArena = new VolleyballArena();
+            volleyballArena.setId(id);
+            SportFacility sportFacility = new SportFacility();
+            sportFacility.setId(id);
+            volleyballArena.setSportFacility(sportFacility);
+            return volleyballArena;
         };
     }
 

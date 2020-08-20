@@ -6,7 +6,7 @@ import sportcityApp.entities.Stadium;
 
 @Getter
 @Setter
-public class StadiumFilter implements Filter<Stadium> {
+public class StadiumFilter implements Filter/*<Stadium>*/ {
     Integer minCapacity;
     Integer maxCapacity;
 }

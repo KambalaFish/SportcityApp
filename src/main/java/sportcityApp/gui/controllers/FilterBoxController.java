@@ -9,6 +9,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 import sportcityApp.entities.Entity;
@@ -29,7 +30,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class FilterBoxController<T> {
+public class FilterBoxController/*<T>*/ {
 
     public void init() {
         contentBox.setStyle(
@@ -52,6 +53,7 @@ public class FilterBoxController<T> {
 
     private final List<TextField> textFields = new ArrayList<>();
     private final List<TextField> integerFields = new ArrayList<>();
+    private final List<TextField> doubleFields = new ArrayList<>();
     private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
@@ -120,6 +122,32 @@ public class FilterBoxController<T> {
 
         addField(integerField, columnIndex, rowIndex, colSpan);
         integerFields.add(integerField);
+    }
+
+    public void addDoubleField(
+            EntityFieldSetter<Double> fieldSetter,
+            int columnIndex, int rowIndex, int colSpan
+    ){
+        UnaryOperator<TextFormatter.Change> doubleFilter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.equals(""))
+                return change;
+            try {
+                Double num = Double.parseDouble(newText);
+                return change;
+            } catch (Exception e){
+                return null;
+            }
+        };
+        TextField doubleField = new TextField();
+        doubleField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), null, doubleFilter));
+
+        doubleField.textProperty().addListener((observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue.isEmpty()? null : Double.valueOf(newValue));
+        });
+
+        addField(doubleField, columnIndex, rowIndex, colSpan);
+        doubleFields.add(doubleField);
     }
 
     public void addDateField(
@@ -219,6 +247,10 @@ public class FilterBoxController<T> {
 
         for (var integerField: integerFields) {
             integerField.setText("");
+        }
+
+        for (var doubleField : doubleFields){
+            doubleField.setText("");
         }
 
 

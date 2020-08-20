@@ -10,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 import sportcityApp.entities.*;
@@ -69,14 +70,14 @@ public class SportFacilityInputFormController {
 
     private final List<TextField> integerFields = new ArrayList<>();
 
+    private final List<TextField> doubleFields = new ArrayList<>();
+
 
 
     public void inputCourt(SportFacility sportFacility){
-        //this.sportFacility = sportFacility;
         Court court = new Court();
         sportFacility.setCourt(court);
         court.setId(sportFacility.getId());
-        //court.setSportFacility(sportFacility);
         addChoiceBox("Тип покрытия", CoverageType.clay, court::setCoverageType, CoverageType::getChoiceItems);
     }
 
@@ -84,7 +85,6 @@ public class SportFacilityInputFormController {
         Stadium stadium = new Stadium();
         sportFacility.setStadium(stadium);
         stadium.setId(sportFacility.getId());
-        //stadium.setSportFacility(sportFacility);
         addIntegerField("Вместимость", 0, stadium::setCapacity);
     }
 
@@ -92,17 +92,15 @@ public class SportFacilityInputFormController {
         IceArena iceArena = new IceArena();
         sportFacility.setIceArena(iceArena);
         iceArena.setId(sportFacility.getId());
-        //iceArena.setSportFacility(sportFacility);
-        addIntegerField("Площадь", 0, iceArena::setSquare);
+        addDoubleField("Площадь", 0d, iceArena::setSquare);
     }
 
     public void inputVolleyballArena(SportFacility sportFacility){
         VolleyballArena volleyballArena = new VolleyballArena();
         sportFacility.setVolleyballArena(volleyballArena);
         volleyballArena.setId(sportFacility.getId());
-        //volleyballArena.setSportFacility(sportFacility);
-        addIntegerField("Высота сетки", 0, volleyballArena::setNet_height);
-        addIntegerField("Ширина сетки", 0, volleyballArena::setNet_width);
+        addDoubleField("Высота сетки", 0d, volleyballArena::setNet_height);
+        addDoubleField("Ширина сетки", 0d, volleyballArena::setNet_width);
     }
 
     private void addIntegerField(String name, Integer initFieldValue, EntityInputFormController.EntityFieldSetter<Integer> fieldSetter){
@@ -123,6 +121,29 @@ public class SportFacilityInputFormController {
 
         addField(name, integerField);
         integerFields.add(integerField);
+    }
+
+    private void addDoubleField(String name, Double initFieldValue, EntityInputFormController.EntityFieldSetter<Double> fieldSetter){
+        UnaryOperator<TextFormatter.Change> doubleFilter = change -> {
+            String newText = change.getControlNewText();
+            try {
+                Double num = Double.parseDouble(newText);
+                return change;
+            } catch (Exception e){
+                return null;
+            }
+        };
+
+        TextField doubleField = new TextField();
+        doubleField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), initFieldValue, doubleFilter));
+
+        doubleField.textProperty().addListener((observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue.isEmpty()? null : Double.valueOf(newValue));
+        });
+
+        addField(name, doubleField);
+        doubleFields.add(doubleField);
+
     }
 
     @SneakyThrows
@@ -170,6 +191,10 @@ public class SportFacilityInputFormController {
 
         for (var integerField: integerFields) {
             integerField.setText("");
+        }
+
+        for(var doubleField : doubleFields){
+            doubleField.setText("");
         }
 
         for (var rawChoiceBox: choiceBoxes.keySet()) {

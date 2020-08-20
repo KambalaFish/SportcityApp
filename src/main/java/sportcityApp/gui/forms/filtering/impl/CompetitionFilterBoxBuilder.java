@@ -9,9 +9,9 @@ import sportcityApp.services.filters.CompetitionFilter;
 import sportcityApp.services.filters.Filter;
 import sportcityApp.utils.ServiceFactory;
 
-public class CompetitionFilterBoxBuilder extends AbstractFilterBoxBuilder<Competition>{
+public class CompetitionFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Competition>*/{
     @Override
-    protected void fillFilterBox(FilterBoxController<Competition> controller, Filter<Competition> filter) {
+    protected void fillFilterBox(FilterBoxController/*<Competition>*/ controller, Filter/*Filter<Competition>*/ filter) {
         CompetitionFilter competitionFilter = (CompetitionFilter) filter;
         controller.setNumberOfRows(3);
         controller.setNumberOfCols(8);

@@ -6,16 +6,19 @@ import sportcityApp.entities.Sportsman;
 import sportcityApp.entities.types.Sport;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
-public class SportsmanFilter implements Filter<Sportsman>{
+public class SportsmanFilter implements Filter/*<Sportsman>*/{
     private Sport sport;
     private Integer minLevel;
     private Integer maxLevel;
     private Integer coachId;
     private List<Sport> sportsOfSportsman = new ArrayList<>();
+    private Date minPeriod;
+    private Date maxPeriod;
     public void addSport(Sport sport){
         if (sportsOfSportsman.stream().noneMatch(sport1 -> sport1 == sport))
             sportsOfSportsman.add(sport);

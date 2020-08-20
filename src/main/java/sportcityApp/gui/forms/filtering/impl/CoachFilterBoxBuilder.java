@@ -6,11 +6,11 @@ import sportcityApp.gui.controllers.FilterBoxController;
 import sportcityApp.services.filters.CoachFilter;
 import sportcityApp.services.filters.Filter;
 
-public class CoachFilterBoxBuilder extends AbstractFilterBoxBuilder<Coach>{
+public class CoachFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Coach>*/{
 
 
     @Override
-    protected void fillFilterBox(FilterBoxController<Coach> controller, Filter<Coach> filter) {
+    protected void fillFilterBox(FilterBoxController/*<Coach>*/ controller, Filter/*Filter<Coach>*/ filter) {
         CoachFilter coachFilter = (CoachFilter) filter;
         controller.setNumberOfRows(1);
         controller.setNumberOfCols(6);

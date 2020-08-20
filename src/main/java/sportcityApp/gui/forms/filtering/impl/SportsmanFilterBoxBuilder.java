@@ -18,13 +18,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder<Sportsman>{
+public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sportsman>*/{
 
     @Override
-    protected void fillFilterBox(FilterBoxController<Sportsman> controller, Filter<Sportsman> filter) {
+    protected void fillFilterBox(FilterBoxController/*<Sportsman>*/ controller, Filter/*Filter<Sportsman>*/ filter) {
         SportsmanFilter sportsmanFilter = (SportsmanFilter) filter;
-        controller.setNumberOfRows(5);
-        controller.setNumberOfCols(8);
+        controller.setNumberOfRows(6);
+        controller.setNumberOfCols(9);
         //controller.setNumberOfCols(6);
         controller.addLabel("Вид спорта:", 0, 0, 2);
         controller.addChoiceBox(sportsmanFilter::setSport, Sport::getChoiceItems, 1, 0, 3);
@@ -49,6 +49,12 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder<Sportsma
         controller.addCheckBox("хоккей", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.hockey, 2, 4, 1);
         controller.addCheckBox("легкая атлетика", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.athletics, 3, 4, 2);
         controller.addCheckBox("фигурное катание", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.figureSkating, 5, 4, 2);
+
+        controller.addLabel("Не учавствовал в период:", 0, 5, 3);
+        controller.addLabel("от", 3, 5, 1);
+        controller.addDateField(sportsmanFilter::setMinPeriod, 4, 5, 2);
+        controller.addLabel("до", 6, 5, 1);
+        controller.addDateField(sportsmanFilter::setMaxPeriod, 7, 5, 2);
     }
 
 }

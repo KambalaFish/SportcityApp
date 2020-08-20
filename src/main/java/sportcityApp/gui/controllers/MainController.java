@@ -27,7 +27,6 @@ import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,6 +87,7 @@ public class MainController {
                 infoWindowBuilder,
                 new CoachFilterBoxBuilder(),
                 CoachFilter::new,
+                true,
                 true
         );
 
@@ -105,11 +105,6 @@ public class MainController {
             var abilitySortPropertyNames = new LinkedHashMap<>(Ability.getSortPropertyNames());
             abilitySortPropertyNames.remove("sportsmanName");
 
-            var coachPropertyNames = new LinkedHashMap<>(Coach.getPropertyNames());
-            var coachSortPropertyNames = new LinkedHashMap<>(Coach.getSortPropertyNames());
-
-            var competitionPropertyNames = new LinkedHashMap<>(Competition.getPropertyNames());
-            var competitionSortPropertyNames = new LinkedHashMap<>(Competition.getSortPropertyNames());
 
             Node abilitiesOfSportsmanTable = createInfoWindowEntityTable(
                     abilityPropertyNames,
@@ -126,8 +121,8 @@ public class MainController {
             );
 
             Node coachesOfSportsmanTable = createInfoWindowEntityTableForM2M(
-                    coachPropertyNames,
-                    coachSortPropertyNames,
+                    Coach.getPropertyNames(),
+                    Coach.getSortPropertyNames(),
                     pageInfo -> sportsmanService.getCoaches(sportsman.getId(), pageInfo),
                     new CoachInputFormBuilder(requestExecutor),
                     new CoachForSportsmanInputFormBuilder(requestExecutor),
@@ -138,8 +133,8 @@ public class MainController {
             );
 
             Node competitionsOfSportsmanTable = createInfoWindowEntityTableForM2M(
-                    competitionPropertyNames,
-                    competitionSortPropertyNames,
+                    Competition.getPropertyNames(),
+                    Competition.getSortPropertyNames(),
                     pageInfo -> sportsmanService.getCompetitions(sportsman.getId(), pageInfo),
                     new CompetitionInputFormBuilder(requestExecutor),
                     new CompetitionForSportsmanInputFormBuilder(requestExecutor),
@@ -166,6 +161,7 @@ public class MainController {
                 infoWindowBuilder,
                 new SportsmanFilterBoxBuilder(),
                 SportsmanFilter::new,
+                true,
                 true
                 );
 
@@ -184,6 +180,7 @@ public class MainController {
                 null,
                 null,
                 null,
+                true,
                 true
                 );
     }
@@ -310,6 +307,7 @@ public class MainController {
                 infoWindowBuilder,
                 new CompetitionFilterBoxBuilder(),
                 CompetitionFilter::new,
+                true,
                 true
                 );
     }
@@ -319,7 +317,14 @@ public class MainController {
     public void openOrganizer(){
         OrganizerService organizerService = ServiceFactory.getOrganizerService();
 
+        DateFilterBoxBuilder filterBoxBuilder = new DateFilterBoxBuilder();
+        DateFilter organizerFilter = new DateFilter();
+        //organizerFilter.setMinPeriod(Date.from(Instant.EPOCH));
+        //organizerFilter.setMaxPeriod(Date.from(Instant.now()));
+
         ContextWindowBuilder<Organizer> infoWindowBuilder = organizer -> {
+            EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(organizer.getName());
+
             Node competitionsOfTheOrganizer = createInfoWindowEntityTableForM2MOwned(
                     Competition.getPropertyNames(),
                     Competition.getSortPropertyNames(),
@@ -331,11 +336,29 @@ public class MainController {
                     true,
                     null
             );
+            builder.addTab(competitionsOfTheOrganizer, "Cоревнования");
 
-            return EntityInfoWindowBuilder.
-                    newInfoWindow(organizer.getName()).
-                    addTab(competitionsOfTheOrganizer, "Соревнования").
-                    build();
+            FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
+            Parent entityInfoRoot = null;
+            try{
+                entityInfoRoot = entityInfoLoader.load();
+            } catch(Exception e){
+                throw new RuntimeException(e);
+            }
+            EntityInfoController controller = entityInfoLoader.getController();
+            requestExecutor
+                    .makeRequest(() -> organizerService.getNumberOfCompetitonsForPeriod(organizer.getId(), organizerFilter))
+                    .setOnSuccessAction(numberOfCompetitions -> Platform.runLater(() -> {
+                        controller.addInfoLine(String.format("Число соревнований проведенных в указанный период: %d", numberOfCompetitions));
+                    }))
+                    .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                            "Не удалось загрузить информацию о числе соревнований в указанный период",
+                            errorMessage
+                    ))
+                    .submit();
+            builder.addTab(entityInfoRoot, "Инфо о соревнованиях");
+
+            return builder.build();
         };
 
         createEntityTable(
@@ -345,9 +368,10 @@ public class MainController {
                 organizerService,
                 new OrganizerInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
-                true
+                filterBoxBuilder,
+                () -> organizerFilter,
+                true,
+                false
         );
 
     }
@@ -357,6 +381,9 @@ public class MainController {
     public void openSportFacilities(){
 
         SportFacilityService sportFacilityService = ServiceFactory.getSportFacilityService();
+
+        CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+        SportFacilityFilterBoxBuilder filterBoxBuilder = new SportFacilityFilterBoxBuilder();
 
         ContextWindowBuilder<SportFacility> infoWindowBuilder = sportFacility ->{
             EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(sportFacility.getId().toString());
@@ -372,7 +399,8 @@ public class MainController {
                     true
             );
             */
-            CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
+
+            //CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
             filter.setSportFacilityID(sportFacility.getId());
             Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
 
@@ -387,7 +415,6 @@ public class MainController {
                     true,
                     filterBox
             );
-
             builder.addTab(competitionsOfTheSportFacility, "Соревнования");
 
             if (sportFacility.getCourt()!=null){
@@ -452,8 +479,9 @@ public class MainController {
                 sportFacilityService,
                 new SportFacilityInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                filterBoxBuilder,
+                () -> filter,
+                false,
                 false
         );
 
@@ -509,8 +537,9 @@ public class MainController {
                 courtService,
                 new CourtInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                new CourtFilterBoxBuilder(),
+                CourtFilter::new,
+                true,
                 true
         );
     }
@@ -562,6 +591,7 @@ public class MainController {
                 infoWindowBuilder,
                 new StadiumFilterBoxBuilder(),
                 StadiumFilter::new,
+                true,
                 true
         );
     }
@@ -571,19 +601,7 @@ public class MainController {
         IceArenaService iceArenaService = ServiceFactory.getIceArenaService();
 
         ContextWindowBuilder<IceArena> infoWindowBuilder = iceArena -> {
-            /*
-            Node competitionsOfTheIceArena = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> iceArenaService.getCompetitionsOfTheIceArena(iceArena.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForIceArenaInputFormBuilder(requestExecutor),
-                    () -> iceArena,
-                    iceArenaService::removeCompetitionFromIceArena,
-                    true,
-                    null
-            );
-            */
+
             CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
             filter.setSportFacilityID(iceArena.getId());
             Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
@@ -612,8 +630,9 @@ public class MainController {
                 iceArenaService,
                 new IceArenaInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                new IceArenaFilterBoxBuilder(),
+                IceArenaFilter::new,
+                true,
                 true
         );
 
@@ -665,24 +684,24 @@ public class MainController {
                 volleyballArenaService,
                 new VolleyballArenaInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null,
-                null,
+                new VolleyballArenaFilterBoxBuilder(),
+                VolleyballArenaFilter::new,
+                true,
                 true
         );
     }
 
+    @FXML
     public void openClubs(){
         ClubService clubService = ServiceFactory.getClubService();
 
-        ClubFilterBoxBuilder clubFilterBoxBuilder = new ClubFilterBoxBuilder();
-        ClubFilter clubFilter = new ClubFilter();
-        clubFilter.setMinPeriod(Date.from(Instant.EPOCH));
-        clubFilter.setMaxPeriod(Date.from(Instant.now()));
+        DateFilterBoxBuilder clubFilterBoxBuilder = new DateFilterBoxBuilder();
+        DateFilter clubFilter = new DateFilter();
+        //clubFilter.setMinPeriod(Date.from(Instant.EPOCH));
+        //clubFilter.setMaxPeriod(Date.from(Instant.now()));
 
 
         ContextWindowBuilder<Club> infoWindowBuilder = club -> {
-            System.out.println("openClubs");
-
             FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
             Parent entityInfoRoot = null;
             try {
@@ -691,12 +710,11 @@ public class MainController {
                 throw new RuntimeException(e);
             }
             EntityInfoController controller = entityInfoLoader.getController();
-
             requestExecutor
                     .makeRequest(() -> clubService.getNumberOfSportsmanInTheClubDuringPeriod(club.getId(), clubFilter))
                     .setOnSuccessAction(numberOfSportsmen -> Platform.runLater(() -> {
                         controller.addInfoLine(String.format(
-                                "Число спортсменов, участвовавших в указанный периода: %d", numberOfSportsmen
+                                "Число спортсменов, участвовавших в указанный период: %d", numberOfSportsmen
                         ));
                     }))
                     .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
@@ -711,7 +729,7 @@ public class MainController {
                     .build();
         };
 
-        createEntityTablev2(
+        createEntityTable(
                 "Клубы",
                 Club.getPropertyNames(),
                 Club.getSortPropertyNames(),
@@ -720,21 +738,24 @@ public class MainController {
                 infoWindowBuilder,
                 clubFilterBoxBuilder,
                 () -> clubFilter,
-                true
+                true,
+                false
                 );
     }
 
     @SneakyThrows
-    private <T extends Entity, X extends Entity> EntityTableController<T, X> createEntityTable(
+    private <T extends Entity, X extends Entity> void /*EntityTableController<T, X>*/ createEntityTable(
             String tableName,
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
             EntityInputFormBuilder<T> inputFormBuilder,
             ContextWindowBuilder<T> infoWindowBuilder,
-            FilterBoxBuilder<T> filterBoxBuilder,
-            Supplier<Filter<T>> newFilterSupplier,
-            boolean isChangeItemVisible)
+            FilterBoxBuilder/*<T>*/ filterBoxBuilder,
+            Supplier<Filter/*<T>*/> newFilterSupplier,
+            boolean isChangeItemVisible,
+            boolean isSearchSource
+    )
     {
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
         Node table = tableLoader.load();
@@ -760,9 +781,15 @@ public class MainController {
 
         Node filterBox = null;
         if (filterBoxBuilder != null && newFilterSupplier != null) {
-            Filter<T> filter = newFilterSupplier.get();
-            filterBox = filterBoxBuilder.buildFilterBox(filter);
-            controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
+            if (isSearchSource) {
+                Filter/*<T>*/ filter = newFilterSupplier.get();
+                filterBox = filterBoxBuilder.buildFilterBox(filter);
+                controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
+            } else {
+                Filter/*<T>*/ filter = newFilterSupplier.get();
+                filterBox = filterBoxBuilder.buildFilterBox(filter);
+                controller.setEntitySource(entityService::getAll);
+            }
         } else {
             controller.setEntitySource(entityService::getAll);
         }
@@ -779,7 +806,7 @@ public class MainController {
                 filterBox
         );
 
-        return controller;
+        /*return controller;*/
 
     }
 
@@ -949,68 +976,6 @@ public class MainController {
     }
 
 
-    @SneakyThrows
-    private <T extends Entity, X extends Entity> EntityTableController<T, X> createEntityTablev2(
-            String tableName,
-            Map<String, String> entityPropertyNames,
-            Map<String, String> entitySortPropertyNames,
-            Service<T> entityService,
-            EntityInputFormBuilder<T> inputFormBuilder,
-            ContextWindowBuilder<T> infoWindowBuilder,
-            FilterBoxBuilder<T> filterBoxBuilder,
-            Supplier<Filter<T>> newFilterSupplier,
-            boolean isChangeItemVisible)
-    {
-        FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
-        Node table = tableLoader.load();
 
-        Tab tableTab = new Tab(tableName);
-        tableTab.setContent(table);
-        tableTab.setOnClosed(event -> {
-            if (contentTabPane.getTabs().isEmpty()) {
-                contentTabPane.getTabs().add(defaultTab);
-            }
-        });
-
-        contentTabPane.getTabs().remove(defaultTab);
-        contentTabPane.getTabs().add(tableTab);
-        contentTabPane.getSelectionModel().select(tableTab);
-
-        EntityTableController<T, X> controller = tableLoader.getController();
-        controller.setInfoWindowBuilder(infoWindowBuilder);
-
-        controller.setIsChangeItemVisible(isChangeItemVisible);
-
-        controller.setEntityRemover(entityService::deleteById);
-
-        Node filterBox = null;
-        /*
-        if (filterBoxBuilder != null && newFilterSupplier != null) {
-            Filter<T> filter = newFilterSupplier.get();
-            filterBox = filterBoxBuilder.buildFilterBox(filter);
-            controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
-        } else {
-            controller.setEntitySource(entityService::getAll);
-        }
-        */
-        Filter<T> filter = newFilterSupplier.get();
-        filterBox = filterBoxBuilder.buildFilterBox(filter);
-        controller.setEntitySource(entityService::getAll);
-
-        controller.setRequestExecutor(requestExecutor);
-
-        controller.setEntityInputFormBuilder(inputFormBuilder);
-
-        controller.init(
-                entityPropertyNames,
-                entitySortPropertyNames,
-                false,
-                this::setStatusBarMessage,
-                filterBox
-        );
-
-        return controller;
-
-    }
 
 }

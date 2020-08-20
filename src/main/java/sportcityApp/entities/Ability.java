@@ -44,7 +44,7 @@ public class Ability extends Entity{
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("sportsmanName", "Имя спортсмена");
-        sortPropertyNames.put("sportProperty", "Спорт");
+        sortPropertyNames.put("sport", "Спорт");
         sortPropertyNames.put("level", "Разряд");
     }
 

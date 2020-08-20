@@ -16,7 +16,7 @@ public interface Service<E extends Entity>{
 
     ServiceResponse<Page<E>> getAll(PageInfo pageInfo);
 
-    ServiceResponse<Page<E>> search(Filter<E> filter, PageInfo pageInfo);
+    ServiceResponse<Page<E>> search(Filter/*<E>*/ filter, PageInfo pageInfo);
 
     ServiceResponse<List<E>> getAllById(Collection<Integer> idCollection);
 

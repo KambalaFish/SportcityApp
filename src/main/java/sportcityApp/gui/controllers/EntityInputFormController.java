@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 import sportcityApp.entities.SportFacility;
@@ -57,6 +58,7 @@ public class EntityInputFormController<T> {
 
     private final List<TextField> textFields = new ArrayList<>();
     private final List<TextField> integerFields = new ArrayList<>();
+    private final List<TextField> doubleFields = new ArrayList<>();
     private final List<TextField> dateTimeFields = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
@@ -133,6 +135,30 @@ public class EntityInputFormController<T> {
 
         addField(name, integerField);
         integerFields.add(integerField);
+    }
+
+    public void addDoubleField(String name, Double initFieldValue, EntityInputFormController.EntityFieldSetter<Double> fieldSetter){
+        UnaryOperator<TextFormatter.Change> doubleFilter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.equals(""))
+                return change;
+            try {
+                Double num = Double.parseDouble(newText);
+                return change;
+            } catch (Exception e){
+                return null;
+            }
+        };
+
+        TextField doubleField = new TextField();
+        doubleField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), initFieldValue, doubleFilter));
+
+        doubleField.textProperty().addListener((observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue.isEmpty()? null : Double.valueOf(newValue));
+        });
+
+        addField(name, doubleField);
+        doubleFields.add(doubleField);
     }
 
     public void addDateField(String name, Date initFieldValue, EntityFieldSetter<Date> fieldSetter) {
@@ -392,6 +418,14 @@ public class EntityInputFormController<T> {
             }
         }
 
+        for (var doubleField : doubleFields){
+            var value = doubleField.getText();
+            if (value == null || value.isEmpty()){
+                doubleField.requestFocus();
+                return false;
+            }
+        }
+
         for (var dateTimeField: dateTimeFields) {
             var dateText = dateTimeField.getText().trim();
             if (dateText.isEmpty()) {
@@ -429,6 +463,10 @@ public class EntityInputFormController<T> {
 
         for (var integerField: integerFields) {
             integerField.setText("");
+        }
+
+        for (var doubleField : doubleFields){
+            doubleField.setText("");
         }
 
         for (var dateTimeField: dateTimeFields) {

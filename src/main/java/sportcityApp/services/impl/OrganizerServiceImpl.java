@@ -4,6 +4,7 @@ import sportcityApp.entities.Competition;
 import sportcityApp.entities.Organizer;
 import sportcityApp.services.OrganizerService;
 import sportcityApp.services.ServiceResponse;
+import sportcityApp.services.filters.DateFilter;
 import sportcityApp.services.impl.api.OrganizerServiceApi;
 import sportcityApp.services.pagination.Page;
 import sportcityApp.services.pagination.PageInfo;
@@ -22,6 +23,12 @@ public class OrganizerServiceImpl extends AbstractCrudServiceImpl<Organizer> imp
     @Override
     public ServiceResponse<Void> removeCompetitionFromOrganizer(Integer organizerId, Integer competitionId) {
         var call = getServiceApi().removeCompetitionFromOrganizer(organizerId, competitionId);
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Integer> getNumberOfCompetitonsForPeriod(Integer organizerId, DateFilter organizerFilter) {
+        var call = getServiceApi().getNumberOfCompetitionForPeriod(organizerId, gson.toJsonTree(organizerFilter));
         return getServerResponse(call);
     }
 

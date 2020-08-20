@@ -16,20 +16,10 @@ public class Court extends Entity{
 
     private CoverageType coverageType;
     private String coverageTypeProperty;
-    /*new*/
-    public void addNewCompetition(Competition competition){
-        sportFacility.addNewCompetition(competition);
-    }
-    /*new*/
-    public void removeCompetition(Competition competition){
-        sportFacility.removeCompetition(competition);
-    }
 
     @Override
     public Court clone(){
         var clone = (Court) super.clone();
-        //if (sportFacility!=null)
-            //clone.setSportFacility(sportFacility.clone());
         return clone;
     }
 
@@ -37,8 +27,6 @@ public class Court extends Entity{
     public void calculateProperties(){
         super.calculateProperties();
         coverageTypeProperty = CoverageType.toLocalizedString(coverageType);
-        //sportFacility.setId(super.getId());
-        //sportFacility.setCourt(this);
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -49,7 +37,7 @@ public class Court extends Entity{
         propertyNames.put("coverageTypeProperty", "Тип покрытия");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("coverageTypeProperty", "Тип покрытия");
+        sortPropertyNames.put("coverageType", "Тип покрытия");
     }
 
     public static Map<String, String> getPropertyNames() {

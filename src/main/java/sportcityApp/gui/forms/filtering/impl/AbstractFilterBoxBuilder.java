@@ -19,19 +19,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class AbstractFilterBoxBuilder<T extends Entity> implements FilterBoxBuilder<T> {
+public abstract class AbstractFilterBoxBuilder/*<T extends Entity>*/ implements FilterBoxBuilder/*<T>*/ {
 
     @Override
     @SneakyThrows
-    public Node buildFilterBox(Filter<T> filter) {
+    public Node buildFilterBox(Filter/*<T>*/ filter) {
         var fxmlLoader = FxmlLoaderFactory.createFilterBoxLoader();
         Parent rootNode = fxmlLoader.load();
-        FilterBoxController<T> controller = fxmlLoader.getController();
+        FilterBoxController/*<T>*/ controller = fxmlLoader.getController();
         controller.init();
         fillFilterBox(controller, filter);
         return rootNode;
     }
-    protected abstract void fillFilterBox(FilterBoxController<T> controller, Filter<T> filter);
+    protected abstract void fillFilterBox(FilterBoxController/*<T>*/ controller, Filter/*Filter<T>*/ filter);
 
     protected <X extends Entity, Y> ChoiceItemSupplier<Y> makeChoiceItemSupplierFromEntities(
             Service<X> entityService,

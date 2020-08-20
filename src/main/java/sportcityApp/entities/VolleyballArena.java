@@ -13,8 +13,8 @@ public class VolleyballArena extends Entity{
 
     private SportFacility sportFacility;
 
-    private Integer net_height;
-    private Integer net_width;
+    private Double net_height;
+    private Double net_width;
 
     /*new*/
     public void addNewCompetition(Competition competition){
@@ -47,7 +47,7 @@ public class VolleyballArena extends Entity{
         propertyNames.put("net_width", "Ширина сетки");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("net_height", "Площадь");
+        sortPropertyNames.put("net_height", "Высота сетки");
         sortPropertyNames.put("net_width", "Ширина сетки");
     }
 

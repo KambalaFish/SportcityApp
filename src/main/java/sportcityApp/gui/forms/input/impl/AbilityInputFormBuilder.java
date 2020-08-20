@@ -19,6 +19,7 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
     @Override
     protected void fillInputForm(Ability ability, FormType formType, boolean isContextWindow, EntityInputFormController<Ability> controller) {
         if (!isContextWindow){
+
             ChoiceItemSupplier<Sportsman> choiceItemSupplier = makeChoiceItemSupplierFromEntities(
                     ServiceFactory.getSportsmanService(),
                     sportsman -> new ChoiceItem<>(sportsman, sportsman.getName()),
@@ -31,7 +32,9 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
                     null,
                     choiceItemSupplier
             );
+
         }
+
         controller.addChoiceBox(
                 "Вид спорта",
                 ability.getSport(),

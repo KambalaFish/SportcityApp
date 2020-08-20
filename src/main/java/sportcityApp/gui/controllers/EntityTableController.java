@@ -283,6 +283,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
     ) {
         isLinkingWindow = false;
         isOwnedWindow = false;
+
         searchBox.managedProperty().bind(searchBox.visibleProperty());
         searchBox.setVisible(false);
 
