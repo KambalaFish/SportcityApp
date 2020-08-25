@@ -16,14 +16,14 @@ public class SportsmanFilter implements Filter/*<Sportsman>*/{
     private Integer minLevel;
     private Integer maxLevel;
     private Integer coachId;
-    private List<Sport> sportsOfSportsman = new ArrayList<>();
     private Date minPeriod;
     private Date maxPeriod;
+    private List<Sport> sportList = new ArrayList<>();
+    //private boolean sportsmenWithOverOneSport;
     public void addSport(Sport sport){
-        if (sportsOfSportsman.stream().noneMatch(sport1 -> sport1 == sport))
-            sportsOfSportsman.add(sport);
+        sportList.add(sport);
     }
     public void removeSport(Sport sport){
-        sportsOfSportsman.removeIf(sport1 -> sport1 == sport);
+        sportList.remove(sport);
     }
 }

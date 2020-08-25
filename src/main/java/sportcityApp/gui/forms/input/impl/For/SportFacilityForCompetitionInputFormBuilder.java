@@ -2,7 +2,6 @@ package sportcityApp.gui.forms.input.impl.For;
 
 import sportcityApp.entities.Competition;
 import sportcityApp.entities.SportFacility;
-import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;

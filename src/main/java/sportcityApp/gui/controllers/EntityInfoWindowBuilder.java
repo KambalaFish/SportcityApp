@@ -22,6 +22,7 @@ public class EntityInfoWindowBuilder {
             stage.setTitle(windowName);
 
             tabPane = new TabPane();
+            tabPane.setPrefWidth(850);
             Scene scene = new Scene(tabPane);
             stage.setScene(scene);
         }

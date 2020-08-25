@@ -13,6 +13,7 @@ import sportcityApp.entities.*;
 import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
+import sportcityApp.gui.custom.ValidationInfo;
 import sportcityApp.gui.forms.filtering.FilterBoxBuilder;
 import sportcityApp.gui.forms.filtering.impl.*;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
@@ -27,7 +28,6 @@ import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -111,7 +111,7 @@ public class MainController {
                     abilitySortPropertyNames,
                     pageInfo -> sportsmanService.getAbilities(sportsman.getId(), pageInfo),
                     abilityService::deleteById,
-                    new AbilityInputFormBuilder(requestExecutor),
+                    new AbilityInputFormBuilder(requestExecutor, sportsman),
                     () -> {
                         Ability ability = new Ability();
                         ability.getSportsman().setId(sportsman.getId());
@@ -152,37 +152,20 @@ public class MainController {
                     build();
         };
 
-        createEntityTable(
+        SportsmanFilterBoxBuilder filterBoxBuilder = new SportsmanFilterBoxBuilder();
+        EntityTableController<Sportsman, Ability> controller = createEntityTable(
                 "Спортсмены",
                 Sportsman.getPropertyNames(),
                 Sportsman.getSortPropertyNames(),
                 sportsmanService,
                 new SportsmanInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                new SportsmanFilterBoxBuilder(),
+                filterBoxBuilder,
                 SportsmanFilter::new,
                 true,
                 true
                 );
-
-    }
-
-    @FXML
-    @SneakyThrows
-    public void openAbility(){
-        AbilityService abilityService = ServiceFactory.getAbilityService();
-        createEntityTable(
-                "Способности",
-                Ability.getPropertyNames(),
-                Ability.getSortPropertyNames(),
-                abilityService,
-                new AbilityInputFormBuilder(requestExecutor),
-                null,
-                null,
-                null,
-                true,
-                true
-                );
+        controller.setValidator(filterBoxBuilder::validate);
     }
 
     @FXML
@@ -236,7 +219,7 @@ public class MainController {
                 builder.addTab(courtsOfTheCompetition, "Корты");
             }
 
-            if(competition.getSport() == Sport.football){
+            if(competition.getSport() == Sport.football | competition.getSport()==Sport.athletics){
                 Node stadiumsOfTheCompetition = createInfoWindowEntityTableForM2M(
                         Stadium.getPropertyNames(),
                         Stadium.getSortPropertyNames(),
@@ -251,7 +234,7 @@ public class MainController {
                 builder.addTab(stadiumsOfTheCompetition, "Стадионы");
             }
 
-            if(competition.getSport() == Sport.hockey){
+            if(competition.getSport() == Sport.hockey | competition.getSport() == Sport.figureSkating){
                 Node iceArenasOfTheCompetition = createInfoWindowEntityTableForM2M(
                         IceArena.getPropertyNames(),
                         IceArena.getSortPropertyNames(),
@@ -297,19 +280,20 @@ public class MainController {
 
             return builder.build();
         };
-
-        createEntityTable(
+        CompetitionFilterBoxBuilder competitionFilterBoxBuilder = new CompetitionFilterBoxBuilder();
+        EntityTableController<Competition, Sportsman> controller = createEntityTable(
                 "Соревнования",
                 Competition.getPropertyNames(),
                 Competition.getSortPropertyNames(),
                 competitionService,
                 new CompetitionInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                new CompetitionFilterBoxBuilder(),
+                competitionFilterBoxBuilder,
                 CompetitionFilter::new,
                 true,
                 true
                 );
+        controller.setValidator(competitionFilterBoxBuilder::validate);
     }
 
     @FXML
@@ -319,46 +303,58 @@ public class MainController {
 
         DateFilterBoxBuilder filterBoxBuilder = new DateFilterBoxBuilder();
         DateFilter organizerFilter = new DateFilter();
-        //organizerFilter.setMinPeriod(Date.from(Instant.EPOCH));
-        //organizerFilter.setMaxPeriod(Date.from(Instant.now()));
 
         ContextWindowBuilder<Organizer> infoWindowBuilder = organizer -> {
-            EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(organizer.getName());
-
-            Node competitionsOfTheOrganizer = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> organizerService.getCompetitions(organizer.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForOrganizerInputFormBuilder(requestExecutor),
-                    () -> organizer,
-                    organizerService::removeCompetitionFromOrganizer,
-                    true,
-                    null
-            );
-            builder.addTab(competitionsOfTheOrganizer, "Cоревнования");
-
-            FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
-            Parent entityInfoRoot = null;
-            try{
-                entityInfoRoot = entityInfoLoader.load();
-            } catch(Exception e){
-                throw new RuntimeException(e);
+            ValidationInfo info = filterBoxBuilder.validate();
+            if (!info.isValid()) {
+                AlertDialogFactory.showWarningAlertDialog(info.getHeaderText(), info.getContextText());
+                return null;
             }
-            EntityInfoController controller = entityInfoLoader.getController();
-            requestExecutor
-                    .makeRequest(() -> organizerService.getNumberOfCompetitonsForPeriod(organizer.getId(), organizerFilter))
-                    .setOnSuccessAction(numberOfCompetitions -> Platform.runLater(() -> {
-                        controller.addInfoLine(String.format("Число соревнований проведенных в указанный период: %d", numberOfCompetitions));
-                    }))
-                    .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
-                            "Не удалось загрузить информацию о числе соревнований в указанный период",
-                            errorMessage
-                    ))
-                    .submit();
-            builder.addTab(entityInfoRoot, "Инфо о соревнованиях");
+            else {
+                EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(organizer.getName());
 
-            return builder.build();
+                Node competitionsOfTheOrganizer = createInfoWindowEntityTableForM2MOwned(
+                        Competition.getPropertyNames(),
+                        Competition.getSortPropertyNames(),
+                        pageInfo -> organizerService.getCompetitions(organizer.getId(), pageInfo),
+                        new CompetitionInputFormBuilder(requestExecutor),
+                        new CompetitionForOrganizerInputFormBuilder(requestExecutor),
+                        () -> organizer,
+                        organizerService::removeCompetitionFromOrganizer,
+                        true,
+                        null
+                );
+                builder.addTab(competitionsOfTheOrganizer, "Cоревнования");
+
+                FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
+                Parent entityInfoRoot = null;
+                try {
+                    entityInfoRoot = entityInfoLoader.load();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                EntityInfoController controller = entityInfoLoader.getController();
+                requestExecutor
+                        .makeRequest(() -> organizerService.getNumberOfCompetitonsForPeriod(organizer.getId(), organizerFilter))
+                        .setOnSuccessAction(numberOfCompetitions -> Platform.runLater(() -> {
+                            if (organizerFilter.getMinPeriod() == null & organizerFilter.getMaxPeriod() == null) {
+                                controller.addInfoLine(String.format("Число соревнований, которые провел %s за всё время: %d", organizer.getName(), numberOfCompetitions));
+                            } else {
+                                controller.addInfoLine(String.format("Число соревнований, которые провел %s в период от %s до %s: %d", organizer.getName(),
+                                        LocalDateFormatter.getFormattedDate(organizerFilter.getMinPeriod()),
+                                        LocalDateFormatter.getFormattedDate(organizerFilter.getMaxPeriod()),
+                                        numberOfCompetitions));
+                            }
+                        }))
+                        .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                                "Не удалось загрузить информацию о числе соревнований в указанный период",
+                                errorMessage
+                        ))
+                        .submit();
+                builder.addTab(entityInfoRoot, "Инфо о соревнованиях");
+
+                return builder.build();
+            }
         };
 
         createEntityTable(
@@ -373,7 +369,6 @@ public class MainController {
                 true,
                 false
         );
-
     }
 
     @FXML
@@ -386,90 +381,84 @@ public class MainController {
         SportFacilityFilterBoxBuilder filterBoxBuilder = new SportFacilityFilterBoxBuilder();
 
         ContextWindowBuilder<SportFacility> infoWindowBuilder = sportFacility ->{
-            EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(sportFacility.getId().toString());
-            /*
-            Node competitionsOfTheSportFacility = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> sportFacilityService.getCompetitions(sportFacility.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForSportFacilityInputFormBuilder(requestExecutor),
-                    () -> sportFacility,
-                    sportFacilityService::removeCompetitionFromSportFacility,
-                    true
-            );
-            */
 
-            //CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
-            filter.setSportFacilityID(sportFacility.getId());
-            Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
+            ValidationInfo info = filterBoxBuilder.validate();
 
-            Node competitionsOfTheSportFacility = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> sportFacilityService.getCompetitionsByFilter(filter, pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForSportFacilityInputFormBuilder(requestExecutor),
-                    () -> sportFacility,
-                    sportFacilityService::removeCompetitionFromSportFacility,
-                    true,
-                    filterBox
-            );
-            builder.addTab(competitionsOfTheSportFacility, "Соревнования");
+            if (!info.isValid()){
+                AlertDialogFactory.showWarningAlertDialog(info.getHeaderText(), info.getContextText());
+                return null;
+            } else {
+                EntityInfoWindowBuilder.Builder builder = EntityInfoWindowBuilder.newInfoWindow(sportFacility.getId().toString());
+                filter.setSportFacilityID(sportFacility.getId());
+                Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
 
-            if (sportFacility.getCourt()!=null){
-                CourtService courtService = ServiceFactory.getCourtService();
-                Node courtNode = createInfoWindowEntityTableCreateButtonDisabled(
-                        Court.getPropertyNames(),
-                        Court.getSortPropertyNames(),
-                        pageInfo -> courtService.getPageWithCourtById(sportFacility.getId(), pageInfo),
-                        courtService::deleteById,
-                        new CourtInputFormBuilder(requestExecutor),
-                        null,
-                        true
+                Node competitionsOfTheSportFacility = createInfoWindowEntityTableForM2MOwned(
+                        Competition.getPropertyNames(),
+                        Competition.getSortPropertyNames(),
+                        pageInfo -> sportFacilityService.getCompetitionsByFilter(filter, pageInfo),
+                        new CompetitionInputFormBuilder(requestExecutor),
+                        new CompetitionForSportFacilityInputFormBuilder(requestExecutor),
+                        () -> sportFacility,
+                        sportFacilityService::removeCompetitionFromSportFacility,
+                        true,
+                        filterBox
                 );
-                builder.addTab(courtNode, "Корт");
+                builder.addTab(competitionsOfTheSportFacility, "Соревнования");
+
+                if (sportFacility.getCourt() != null) {
+                    CourtService courtService = ServiceFactory.getCourtService();
+                    Node courtNode = createInfoWindowEntityTableCreateButtonDisabled(
+                            Court.getPropertyNames(),
+                            Court.getSortPropertyNames(),
+                            pageInfo -> courtService.getPageWithCourtById(sportFacility.getId(), pageInfo),
+                            courtService::deleteById,
+                            new CourtInputFormBuilder(requestExecutor),
+                            null,
+                            true
+                    );
+                    builder.addTab(courtNode, "Корт");
+                }
+                if (sportFacility.getIceArena() != null) {
+                    IceArenaService iceArenaService = ServiceFactory.getIceArenaService();
+                    Node iceArenaNode = createInfoWindowEntityTableCreateButtonDisabled(
+                            IceArena.getPropertyNames(),
+                            IceArena.getSortPropertyNames(),
+                            pageInfo -> iceArenaService.getPageWithIceArenaById(sportFacility.getId(), pageInfo),
+                            iceArenaService::deleteById,
+                            new IceArenaInputFormBuilder(requestExecutor),
+                            null,
+                            true
+                    );
+                    builder.addTab(iceArenaNode, "Ледовая арена");
+                }
+                if (sportFacility.getStadium() != null) {
+                    StadiumService stadiumService = ServiceFactory.getStadiumService();
+                    Node stadiumNode = createInfoWindowEntityTableCreateButtonDisabled(
+                            Stadium.getPropertyNames(),
+                            Stadium.getSortPropertyNames(),
+                            pageInfo -> stadiumService.getPageWithStadiumById(sportFacility.getId(), pageInfo),
+                            stadiumService::deleteById,
+                            new StadiumInputFormBuilder(requestExecutor),
+                            null,
+                            true
+                    );
+                    builder.addTab(stadiumNode, "Стадион");
+                }
+                if (sportFacility.getVolleyballArena() != null) {
+                    VolleyballArenaService volleyballArenaService = ServiceFactory.getVolleyballArenaService();
+                    Node volleyballArenaNode = createInfoWindowEntityTableCreateButtonDisabled(
+                            VolleyballArena.getPropertyNames(),
+                            VolleyballArena.getSortPropertyNames(),
+                            pageInfo -> volleyballArenaService.getPageWithVolleyballArenaById(sportFacility.getId(), pageInfo),
+                            volleyballArenaService::deleteById,
+                            new VolleyballArenaInputFormBuilder(requestExecutor),
+                            null,
+                            true
+                    );
+                    builder.addTab(volleyballArenaNode, "Воллейбольная арена");
+                }
+                return builder.build();
             }
-            if(sportFacility.getIceArena()!=null){
-                IceArenaService iceArenaService = ServiceFactory.getIceArenaService();
-                Node iceArenaNode = createInfoWindowEntityTableCreateButtonDisabled(
-                        IceArena.getPropertyNames(),
-                        IceArena.getSortPropertyNames(),
-                        pageInfo -> iceArenaService.getPageWithIceArenaById(sportFacility.getId(), pageInfo),
-                        iceArenaService::deleteById,
-                        new IceArenaInputFormBuilder(requestExecutor),
-                        null,
-                        true
-                );
-                builder.addTab(iceArenaNode, "Ледовая арена");
-            }
-            if(sportFacility.getStadium()!=null){
-                StadiumService stadiumService = ServiceFactory.getStadiumService();
-                Node stadiumNode = createInfoWindowEntityTableCreateButtonDisabled(
-                        Stadium.getPropertyNames(),
-                        Stadium.getSortPropertyNames(),
-                        pageInfo -> stadiumService.getPageWithStadiumById(sportFacility.getId(), pageInfo),
-                        stadiumService::deleteById,
-                        new StadiumInputFormBuilder(requestExecutor),
-                        null,
-                        true
-                );
-                builder.addTab(stadiumNode, "Стадион");
-            }
-            if(sportFacility.getVolleyballArena()!=null){
-                VolleyballArenaService volleyballArenaService = ServiceFactory.getVolleyballArenaService();
-                Node volleyballArenaNode = createInfoWindowEntityTableCreateButtonDisabled(
-                        VolleyballArena.getPropertyNames(),
-                        VolleyballArena.getSortPropertyNames(),
-                        pageInfo -> volleyballArenaService.getPageWithVolleyballArenaById(sportFacility.getId(), pageInfo),
-                        volleyballArenaService::deleteById,
-                        new VolleyballArenaInputFormBuilder(requestExecutor),
-                        null,
-                        true
-                );
-                builder.addTab(volleyballArenaNode, "Воллейбольная арена");
-            }
-            return builder.build();
         };
 
         createEntityTable(
@@ -697,36 +686,48 @@ public class MainController {
 
         DateFilterBoxBuilder clubFilterBoxBuilder = new DateFilterBoxBuilder();
         DateFilter clubFilter = new DateFilter();
-        //clubFilter.setMinPeriod(Date.from(Instant.EPOCH));
-        //clubFilter.setMaxPeriod(Date.from(Instant.now()));
-
 
         ContextWindowBuilder<Club> infoWindowBuilder = club -> {
+            ValidationInfo info = clubFilterBoxBuilder.validate();
+            if (!info.isValid()){
+                AlertDialogFactory.showWarningAlertDialog(info.getHeaderText(), info.getContextText());
+                return null;
+            } else {
             FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
             Parent entityInfoRoot = null;
             try {
                 entityInfoRoot = entityInfoLoader.load();
-            } catch (Exception e){
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             EntityInfoController controller = entityInfoLoader.getController();
             requestExecutor
                     .makeRequest(() -> clubService.getNumberOfSportsmanInTheClubDuringPeriod(club.getId(), clubFilter))
                     .setOnSuccessAction(numberOfSportsmen -> Platform.runLater(() -> {
-                        controller.addInfoLine(String.format(
-                                "Число спортсменов, участвовавших в указанный период: %d", numberOfSportsmen
-                        ));
+
+                        if (clubFilter.getMinPeriod() == null & clubFilter.getMaxPeriod() == null) {
+                            controller.addInfoLine(String.format(
+                                    "Число спортсменов клуба %s, участвовавших в соревнованиях за всё время: %d",
+                                    club.getName(), numberOfSportsmen
+                            ));
+                        } else
+                            controller.addInfoLine(String.format(
+                                    "Число спортсменов клуба %s, участвовавших в период от %s до %s: %d",
+                                    club.getName(), LocalDateFormatter.getFormattedDate(clubFilter.getMinPeriod()), LocalDateFormatter.getFormattedDate(clubFilter.getMaxPeriod()), numberOfSportsmen
+                            ));
+
                     }))
                     .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
                             "Не удалось загрузить информацию о числе спортсменов",
                             errorMessage
                     ))
                     .submit();
+                return EntityInfoWindowBuilder
+                        .newInfoWindow(club.getName())
+                        .addTab(entityInfoRoot, "Инфо о спортсменах")
+                        .build();
+        }
 
-            return EntityInfoWindowBuilder
-                    .newInfoWindow(club.getName())
-                    .addTab(entityInfoRoot, "Инфо о спортсменах")
-                    .build();
         };
 
         createEntityTable(
@@ -744,7 +745,7 @@ public class MainController {
     }
 
     @SneakyThrows
-    private <T extends Entity, X extends Entity> void /*EntityTableController<T, X>*/ createEntityTable(
+    private <T extends Entity, X extends Entity> /*void*/ EntityTableController<T, X> createEntityTable(
             String tableName,
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
@@ -806,7 +807,7 @@ public class MainController {
                 filterBox
         );
 
-        /*return controller;*/
+        return controller;
 
     }
 

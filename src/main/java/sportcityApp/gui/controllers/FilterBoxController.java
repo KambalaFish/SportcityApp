@@ -12,23 +12,15 @@ import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
-import sportcityApp.entities.Entity;
 import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.gui.custom.DateTimePicker;
-import sportcityApp.services.Service;
-import sportcityApp.services.pagination.Page;
-import sportcityApp.services.pagination.PageInfo;
 import sportcityApp.utils.LocalDateFormatter;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public class FilterBoxController/*<T>*/ {
 
@@ -57,6 +49,11 @@ public class FilterBoxController/*<T>*/ {
     private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
+
+    /*new*/
+    public List<DateTimePicker> getDateTimePickers(){
+        return dateTimePickers;
+    }
 
     @FXML
     private VBox contentBox;
@@ -218,12 +215,30 @@ public class FilterBoxController/*<T>*/ {
         checkBox.selectedProperty().addListener( (observable, oldValue, newValue) -> {
             if (newValue){
                 fieldSetter.setField(sport);
-            } else
+            } else if (oldValue!=null){
                 fieldRemover.removeField(sport);
+            }
         });
         grid.add(checkBox, columnIndex, rowIndex, colSpan, 1);
         checkBoxes.add(checkBox);
     }
+
+    /*
+    public void addCheckBox(
+            String name,
+            EntityFieldSetter<Boolean> fieldSetter,
+            int columnIndex, int rowIndex, int colSpan
+    ){
+        CheckBox checkBox = new CheckBox(name);
+        checkBox.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue);
+            System.out.println(newValue);
+        });
+        grid.add(checkBox, columnIndex, rowIndex, colSpan, 1);
+        checkBoxes.add(checkBox);
+    }
+    */
+
 
     private void addField(
             Control field,
@@ -268,6 +283,7 @@ public class FilterBoxController/*<T>*/ {
         for (var checkBox: checkBoxes) {
             checkBox.setSelected(false);
         }
+
     }
 
 }

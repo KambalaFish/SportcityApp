@@ -6,6 +6,7 @@ import sportcityApp.entities.types.Sport;
 import sportcityApp.gui.controllers.FilterBoxController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.custom.ValidationInfo;
 import sportcityApp.services.Service;
 import sportcityApp.services.filters.Filter;
 import sportcityApp.services.filters.SportsmanFilter;
@@ -19,10 +20,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sportsman>*/{
-
+    SportsmanFilter sportsmanFilter;
     @Override
     protected void fillFilterBox(FilterBoxController/*<Sportsman>*/ controller, Filter/*Filter<Sportsman>*/ filter) {
-        SportsmanFilter sportsmanFilter = (SportsmanFilter) filter;
+        sportsmanFilter = (SportsmanFilter) filter;
         controller.setNumberOfRows(6);
         controller.setNumberOfCols(9);
         //controller.setNumberOfCols(6);
@@ -42,6 +43,10 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sports
         controller.addLabel("Тренер:", 0, 2, 1);
         controller.addChoiceBox(sportsmanFilter::setCoachId, choiceItemSupplier, 1, 2, 3);
 
+        /*
+        controller.addLabel("Показать спортсменов, занимающиеся более двумя видами спорта:", 0, 3, 6);
+        controller.addCheckBox("",sportsmanFilter::setSportsmenWithOverOneSport, 6, 3, 1);
+        */
         controller.addLabel("Виды спорта:", 0, 3, 2);
         controller.addCheckBox("футбол", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.football, 2, 3, 1);
         controller.addCheckBox("теннис", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.tennis, 3, 3, 1);
@@ -55,6 +60,21 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sports
         controller.addDateField(sportsmanFilter::setMinPeriod, 4, 5, 2);
         controller.addLabel("до", 6, 5, 1);
         controller.addDateField(sportsmanFilter::setMaxPeriod, 7, 5, 2);
+    }
+
+    public ValidationInfo validate(){
+        ValidationInfo info;
+        if ( (sportsmanFilter.getMinPeriod() == null & sportsmanFilter.getMaxPeriod()!=null) | (sportsmanFilter.getMaxPeriod() == null & sportsmanFilter.getMinPeriod() != null) )
+            info = new ValidationInfo(false, "Одно из значений периода не заполнено", "Заполните оба значения периода в фильтре или сбросьте, чтобы обновить");
+        else if (sportsmanFilter.getMinPeriod() != null & sportsmanFilter.getMaxPeriod()!=null){
+            if (sportsmanFilter.getMinPeriod().after(sportsmanFilter.getMaxPeriod()))
+                info = new ValidationInfo(false, "Дата начала периода позже даты конца периода", "Введите корректные значения");
+            else
+                info = new ValidationInfo(true, "", "");
+        }
+        else
+            info = new ValidationInfo(true, "", "");
+        return info;
     }
 
 }

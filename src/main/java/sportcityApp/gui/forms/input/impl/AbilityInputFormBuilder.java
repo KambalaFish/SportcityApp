@@ -7,13 +7,20 @@ import sportcityApp.gui.controllers.EntityInputFormController;
 import sportcityApp.gui.controllers.interfaces.ChoiceItemSupplier;
 import sportcityApp.gui.custom.ChoiceItem;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
+import sportcityApp.services.SportsmanService;
+import sportcityApp.services.pagination.PageInfo;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
-public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Ability> {
+import java.util.List;
 
-    public AbilityInputFormBuilder(RequestExecutor requestExecutor){
+public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Ability> {
+    Sportsman sportsman;
+    SportsmanService sportsmanService;
+    public AbilityInputFormBuilder(RequestExecutor requestExecutor, Sportsman sportsman){
         super(Ability::new, ServiceFactory.getAbilityService(), requestExecutor);
+        this.sportsman = sportsman;
+        sportsmanService = ServiceFactory.getSportsmanService();
     }
 
     @Override
@@ -34,7 +41,7 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
             );
 
         }
-
+        /*
         controller.addChoiceBox(
                 "Вид спорта",
                 ability.getSport(),
@@ -42,6 +49,19 @@ public class AbilityInputFormBuilder extends AbstractEntityInputFormBuilder<Abil
                 null,
                 Sport::getChoiceItems
         );
+        */
+        controller.addChoiceBox(
+                "Вид спорта",
+                ability.getSport(),
+                ability::setSport,
+                null,
+                () -> {
+                    List<ChoiceItem<Sport>> list = Sport.getChoiceItems();
+                    list.removeIf(sportChoiceItem -> sportsmanService.getAbilities(sportsman.getId(), PageInfo.getUnlimitedPageInfo()).getBody().getElementList().stream().anyMatch(ability1 -> ability1.getSport() == sportChoiceItem.getValue()));
+                    return list;
+                }
+                );
+
         controller.addIntegerField("Разряд", ability.getLevel(), ability::setLevel);
     }
 

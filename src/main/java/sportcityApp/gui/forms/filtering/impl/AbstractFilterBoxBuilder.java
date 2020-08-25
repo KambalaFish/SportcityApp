@@ -20,13 +20,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class AbstractFilterBoxBuilder/*<T extends Entity>*/ implements FilterBoxBuilder/*<T>*/ {
+    /*new*/
+    protected FilterBoxController controller;
 
     @Override
     @SneakyThrows
     public Node buildFilterBox(Filter/*<T>*/ filter) {
         var fxmlLoader = FxmlLoaderFactory.createFilterBoxLoader();
         Parent rootNode = fxmlLoader.load();
-        FilterBoxController/*<T>*/ controller = fxmlLoader.getController();
+        //FilterBoxController/*<T>*/ controller = fxmlLoader.getController();
+        controller = fxmlLoader.getController();
         controller.init();
         fillFilterBox(controller, filter);
         return rootNode;

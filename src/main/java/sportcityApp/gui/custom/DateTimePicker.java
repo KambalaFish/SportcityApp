@@ -56,7 +56,6 @@ public class DateTimePicker extends DatePicker {
             } else {
                 setValue(null);
             }
-
         });
 
         getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> {

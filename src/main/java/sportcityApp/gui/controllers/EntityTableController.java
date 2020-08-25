@@ -10,12 +10,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import sportcityApp.entities.SportFacility;
 import sportcityApp.gui.AlertDialogFactory;
 import sportcityApp.gui.controllers.interfaces.ContextMenuAction;
 import sportcityApp.gui.controllers.interfaces.ContextWindowBuilder;
 import sportcityApp.gui.controllers.interfaces.SuccessAction;
+import sportcityApp.gui.controllers.interfaces.Validator;
 import sportcityApp.gui.custom.ChoiceItem;
+import sportcityApp.gui.custom.ValidationInfo;
 import sportcityApp.gui.forms.input.EntityInputFormBuilder;
 import sportcityApp.entities.Entity;
 import sportcityApp.gui.forms.input.LinkingInputFormBuilder;
@@ -76,6 +77,12 @@ public class EntityTableController <T extends Entity, X extends Entity> {
     private boolean isLinkingWindow;
     private boolean isOwnedWindow;
     private boolean isChangeItemVisible;
+    private Validator validator;
+
+    public void setValidator(Validator validator){
+        this.validator = validator;
+    }
+
     public void setIsLinkingWindow(boolean value){
         isLinkingWindow = value;
     }
@@ -362,6 +369,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         refreshTableContents("Данные успешно загружены");
     }
 
+    /*
     public void refreshTableContents(String successMessage) {
         disableComponent();
         requestExecutor
@@ -399,6 +407,60 @@ public class EntityTableController <T extends Entity, X extends Entity> {
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
+    */
+
+    public void refreshTableContents(String successMessage) {
+        //disableComponent();
+        boolean isValid = true;
+        ValidationInfo validationInfo = null;
+        if (validator!=null){
+            validationInfo = validator.validate();
+        }
+        if (validationInfo!=null)
+            isValid = validationInfo.isValid();
+        if (!isValid)
+            AlertDialogFactory.showWarningAlertDialog(validationInfo.getHeaderText(), validationInfo.getContextText());
+        else {
+            disableComponent();
+            requestExecutor
+                    .makeRequest(() -> entitySource.getEntities(pageInfo))
+                    .setOnSuccessAction(page -> {
+                        var entities = page.getElementList();
+                        entities.forEach(Entity::calculateProperties);
+
+                        Platform.runLater(() -> {
+                            pagination.pageCountProperty().setValue(
+                                    page.getTotalPages().equals(0L) ? 1 : page.getTotalPages()
+                            );
+
+                            pageSizeLabel.setText(String.format(
+                                    "На странице: %d", page.getNumberOfElements()
+                            ));
+
+                            totalSizeLabel.setText(String.format(
+                                    "Всего: %d", page.getTotalElements()
+                            ));
+
+                            entityObservableList.clear();
+                            entityObservableList.addAll(entities);
+                            statusBarMessageAcceptor.accept(successMessage);
+                            entityTable.setPlaceholder(emptyTablePlaceholder);
+                        });
+                    })
+                    .setOnFailureAction(errorMessage -> Platform.runLater(() -> {
+                        AlertDialogFactory.showErrorAlertDialog(
+                                "Не удалось загрузить информацию",
+                                errorMessage
+                        );
+                        entityTable.setPlaceholder(promptTablePlaceholder);
+                    }))
+                    .setFinalAction(() -> Platform.runLater(this::enableComponent))
+                    .submit();
+        }
+    }
+
+
+
 
     private void disableComponent() {
         rootVBox.setDisable(true);
@@ -447,6 +509,7 @@ public class EntityTableController <T extends Entity, X extends Entity> {
         try {
             if (windowBuilder != null) {
                 Stage contextWindow = windowBuilder.get();
+                if (contextWindow != null) /*new*/
                 contextWindow.show();
             }
         } catch (Exception e) {
