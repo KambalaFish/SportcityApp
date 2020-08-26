@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class CompetitionOfSFFilter implements Filter/*<Competition>*/{
+public class CompetitionOfSFFilter implements Filter{
 
     private Integer sportFacilityID;
     private Sport sport;

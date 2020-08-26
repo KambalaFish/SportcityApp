@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class CompetitionFilter implements Filter/*<Competition>*/{
+public class CompetitionFilter implements Filter{
     private Date minPeriod;
     private Date maxPeriod;
     private Integer organizerId;

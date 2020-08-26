@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class DateFilter implements Filter/*<Club>*/{
+public class DateFilter implements Filter{
     private Date minPeriod;
     private Date maxPeriod;
 }

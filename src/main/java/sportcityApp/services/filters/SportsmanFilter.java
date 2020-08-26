@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SportsmanFilter implements Filter/*<Sportsman>*/{
+public class SportsmanFilter implements Filter{
     private Sport sport;
     private Integer minLevel;
     private Integer maxLevel;

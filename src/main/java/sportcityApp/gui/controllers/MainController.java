@@ -64,7 +64,7 @@ public class MainController {
             Node sportsmenOfCoachTable = createInfoWindowEntityTableForM2MOwned(
                     sportsmanPropertyNames,
                     sportsmanSortPropertyNames,
-                    pageInfo -> coachService.getSportsmen(coach.getId(), pageInfo),/*T - это спортсмен в ентитиТэйблКонтроллерере*/
+                    pageInfo -> coachService.getSportsmen(coach.getId(), pageInfo),
                     new SportsmanInputFormBuilder(requestExecutor),
                     new SportsmanForCoachInputFormBuilder(requestExecutor),
                     () -> coach,
@@ -128,7 +128,7 @@ public class MainController {
                     new CoachForSportsmanInputFormBuilder(requestExecutor),
                     () -> sportsman,
                     sportsmanService::removeCoachFromSportsman,
-                    sportsman::removeCoachById/*можно в принципе ставить null, но тогда нужно обновить перед добавлением, не удобно*/,
+                    sportsman::removeCoachById/*можно в принципе ставить null, но тогда нужно обновить перед добавлением, не очень удобно*/,
                     true
             );
 
@@ -481,22 +481,7 @@ public class MainController {
     public void openCourts(){
         CourtService courtService = ServiceFactory.getCourtService();
 
-
         ContextWindowBuilder<Court> infoWindowBuilder = court -> {
-
-            /*
-            Node competitionsOfTheCourt = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> courtService.getCompetitionsOfTheCourt(court.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForCourtInputFormBuilder(requestExecutor),
-                    () -> court,
-                    courtService::removeCompetitionFromCourt,
-                    true,
-                    null
-            );
-            */
 
             CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
             filter.setSportFacilityID(court.getId());
@@ -538,19 +523,7 @@ public class MainController {
         StadiumService stadiumService = ServiceFactory.getStadiumService();
 
         ContextWindowBuilder<Stadium> infoWindowBuilder = stadium -> {
-            /*
-            Node competitionsOfTheStadium = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> stadiumService.getCompetitionsOfTheStadium(stadium.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForStadiumInputFormBuilder(requestExecutor),
-                    () -> stadium,
-                    stadiumService::removeCompetitionFromStadium,
-                    true,
-                    null
-            );
-            */
+
             CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
             filter.setSportFacilityID(stadium.getId());
             Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
@@ -632,19 +605,7 @@ public class MainController {
         VolleyballArenaService volleyballArenaService = ServiceFactory.getVolleyballArenaService();
 
         ContextWindowBuilder<VolleyballArena> infoWindowBuilder = volleyballArena ->{
-            /*
-            Node competitionsOfTheVolleyballArena = createInfoWindowEntityTableForM2MOwned(
-                    Competition.getPropertyNames(),
-                    Competition.getSortPropertyNames(),
-                    pageInfo -> volleyballArenaService.getCompetitionsOfTheVolleyballArena(volleyballArena.getId(), pageInfo),
-                    new CompetitionInputFormBuilder(requestExecutor),
-                    new CompetitionForVolleyballArenaInputFormBuilder(requestExecutor),
-                    () -> volleyballArena,
-                    volleyballArenaService::removeCompetitionFromVolleyballArena,
-                    true,
-                    null
-            );
-            */
+
             CompetitionOfSFFilter filter = new CompetitionOfSFFilter();
             filter.setSportFacilityID(volleyballArena.getId());
             Node filterBox = new CompetitionOfSFFilterBoxBuilder().buildFilterBox(filter);
@@ -745,15 +706,15 @@ public class MainController {
     }
 
     @SneakyThrows
-    private <T extends Entity, X extends Entity> /*void*/ EntityTableController<T, X> createEntityTable(
+    private <T extends Entity, X extends Entity> EntityTableController<T, X> createEntityTable(
             String tableName,
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
             EntityInputFormBuilder<T> inputFormBuilder,
             ContextWindowBuilder<T> infoWindowBuilder,
-            FilterBoxBuilder/*<T>*/ filterBoxBuilder,
-            Supplier<Filter/*<T>*/> newFilterSupplier,
+            FilterBoxBuilder filterBoxBuilder,
+            Supplier<Filter> newFilterSupplier,
             boolean isChangeItemVisible,
             boolean isSearchSource
     )
@@ -783,11 +744,11 @@ public class MainController {
         Node filterBox = null;
         if (filterBoxBuilder != null && newFilterSupplier != null) {
             if (isSearchSource) {
-                Filter/*<T>*/ filter = newFilterSupplier.get();
+                Filter filter = newFilterSupplier.get();
                 filterBox = filterBoxBuilder.buildFilterBox(filter);
                 controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
             } else {
-                Filter/*<T>*/ filter = newFilterSupplier.get();
+                Filter filter = newFilterSupplier.get();
                 filterBox = filterBoxBuilder.buildFilterBox(filter);
                 controller.setEntitySource(entityService::getAll);
             }
@@ -975,8 +936,5 @@ public class MainController {
 
         return table;
     }
-
-
-
 
 }

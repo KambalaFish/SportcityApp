@@ -66,7 +66,7 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
     }
 
     @Override
-    public ServiceResponse<Page<T>> search(Filter/*<T>*/ filter, PageInfo pageInfo) {
+    public ServiceResponse<Page<T>> search(Filter filter, PageInfo pageInfo) {
         var call = crudServiceApi.search(urlRoot, PageInfo.toMap(pageInfo), gson.toJsonTree(filter));
         return getServerResponse(call, TypeFactory.getPageType(entityClass));
     }
@@ -79,14 +79,12 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
 
     @Override
     public ServiceResponse<T> create(T entity) {
-        System.out.println("\ncreate\n" + gson.toJsonTree(entity)+"\n");
         var call = crudServiceApi.create(urlRoot, gson.toJsonTree(entity));
         return getServerResponse(call, entityClass);
     }
 
     @Override
     public ServiceResponse<T> save(T entity) {
-        System.out.println("\nsave\n" + gson.toJsonTree(entity)+"\n");
         var call = crudServiceApi.save(urlRoot, entity.getId(), gson.toJsonTree(entity));
         return getServerResponse(call, entityClass);
     }
