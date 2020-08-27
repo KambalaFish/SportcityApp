@@ -1,5 +1,6 @@
 package sportcityApp.gui.forms.filtering.impl;
 
+import sportcityApp.entities.Club;
 import sportcityApp.entities.Entity;
 import sportcityApp.entities.Sportsman;
 import sportcityApp.entities.types.Sport;
@@ -24,42 +25,64 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sports
     @Override
     protected void fillFilterBox(FilterBoxController/*<Sportsman>*/ controller, Filter/*Filter<Sportsman>*/ filter) {
         sportsmanFilter = (SportsmanFilter) filter;
-        controller.setNumberOfRows(6);
+
+
+        controller.setNumberOfRows(7);
         controller.setNumberOfCols(9);
         //controller.setNumberOfCols(6);
-        controller.addLabel("Вид спорта:", 0, 0, 2);
-        controller.addChoiceBox(sportsmanFilter::setSport, Sport::getChoiceItems, 1, 0, 3);
+        int rowIndex = 0;
+        controller.addLabel("ФИО спортсмена:", 0, rowIndex, 2);
+        controller.addTextField(sportsmanFilter::setName, 2, rowIndex, 4);
 
-        controller.addLabel("Минимальный разряд:", 0, 1, 2);
-        controller.addIntegerField(sportsmanFilter::setMinLevel, 2, 1, 1);
-        controller.addLabel("Максимальный разряд:", 3, 1, 3);
-        controller.addIntegerField(sportsmanFilter::setMaxLevel, 5, 1, 1);
+        controller.addLabel("Клуб:", 6, rowIndex, 1);
+        ChoiceItemSupplier<Integer> clubSupplier = makeChoiceItemSupplierFromEntities(
+                ServiceFactory.getClubService(),
+                club -> new ChoiceItem<>(club.getId(), club.getName()),
+                "Не удалось загрузить клубы"
+        );
+        controller.addChoiceBox(sportsmanFilter::setClubId, clubSupplier, 7, rowIndex, 2);
+
+        rowIndex++;
+
+        controller.addLabel("Вид спорта:", 0, rowIndex, 2);
+        controller.addChoiceBox(sportsmanFilter::setSport, Sport::getChoiceItems, 1, rowIndex, 3);
+
+        rowIndex++;
+
+        controller.addLabel("Минимальный разряд:", 0, rowIndex, 2);
+        controller.addIntegerField(sportsmanFilter::setMinLevel, 2, rowIndex, 1);
+        controller.addLabel("Максимальный разряд:", 3, rowIndex, 3);
+        controller.addIntegerField(sportsmanFilter::setMaxLevel, 5, rowIndex, 1);
+
+        rowIndex++;
 
         ChoiceItemSupplier<Integer> choiceItemSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getCoachService(),
                 coach -> new ChoiceItem<>(coach.getId(), coach.getName()),
                 "Не удалось загрузить тренеров"
         );
-        controller.addLabel("Тренер:", 0, 2, 1);
-        controller.addChoiceBox(sportsmanFilter::setCoachId, choiceItemSupplier, 1, 2, 3);
+        controller.addLabel("Тренер:", 0, rowIndex, 1);
+        controller.addChoiceBox(sportsmanFilter::setCoachId, choiceItemSupplier, 1, rowIndex, 3);
 
         /*
         controller.addLabel("Показать спортсменов, занимающиеся более двумя видами спорта:", 0, 3, 6);
         controller.addCheckBox("",sportsmanFilter::setSportsmenWithOverOneSport, 6, 3, 1);
         */
-        controller.addLabel("Виды спорта:", 0, 3, 2);
-        controller.addCheckBox("футбол", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.football, 2, 3, 1);
-        controller.addCheckBox("теннис", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.tennis, 3, 3, 1);
-        controller.addCheckBox("воллейбол", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.volleyball, 4, 3, 2);
-        controller.addCheckBox("хоккей", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.hockey, 2, 4, 1);
-        controller.addCheckBox("легкая атлетика", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.athletics, 3, 4, 2);
-        controller.addCheckBox("фигурное катание", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.figureSkating, 5, 4, 2);
-
-        controller.addLabel("Не учавствовал в период:", 0, 5, 3);
-        controller.addLabel("от", 3, 5, 1);
-        controller.addDateField(sportsmanFilter::setMinPeriod, 4, 5, 2);
-        controller.addLabel("до", 6, 5, 1);
-        controller.addDateField(sportsmanFilter::setMaxPeriod, 7, 5, 2);
+        rowIndex++;
+        controller.addLabel("Виды спорта:", 0, rowIndex, 2);
+        controller.addCheckBox("футбол", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.football, 2, rowIndex, 1);
+        controller.addCheckBox("теннис", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.tennis, 3, rowIndex, 1);
+        controller.addCheckBox("воллейбол", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.volleyball, 4, rowIndex, 2);
+        rowIndex++;
+        controller.addCheckBox("хоккей", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.hockey, 2, rowIndex, 1);
+        controller.addCheckBox("легкая атлетика", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.athletics, 3, rowIndex, 2);
+        controller.addCheckBox("фигурное катание", sportsmanFilter::addSport, sportsmanFilter::removeSport, Sport.figureSkating, 5, rowIndex, 2);
+        rowIndex++;
+        controller.addLabel("Не учавствовал в период:", 0, rowIndex, 3);
+        controller.addLabel("от", 3, rowIndex, 1);
+        controller.addDateField(sportsmanFilter::setMinPeriod, 4, rowIndex, 2);
+        controller.addLabel("до", 6, rowIndex, 1);
+        controller.addDateField(sportsmanFilter::setMaxPeriod, 7, rowIndex, 2);
     }
 
     public ValidationInfo validate(){

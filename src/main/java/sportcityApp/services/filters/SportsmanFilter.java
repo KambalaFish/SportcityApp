@@ -12,6 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 public class SportsmanFilter implements Filter{
+    private String name;
+    private Integer clubId;
     private Sport sport;
     private Integer minLevel;
     private Integer maxLevel;
