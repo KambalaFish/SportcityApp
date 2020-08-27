@@ -18,13 +18,8 @@ public class SportsmanInputFormBuilder extends AbstractEntityInputFormBuilder<Sp
 
     @Override
     protected void fillInputForm(Sportsman sportsman, FormType formType, boolean isContextWindow, EntityInputFormController<Sportsman> controller) {
-        Predicate<Club> predicate = x -> true;
-        if (formType == FormType.EDIT_FORM) {
-            predicate = club -> sportsman.getClub().getId().intValue() != club.getId().intValue();
-        }
         ChoiceItemSupplier<Club> choiceItemSupplier = makeChoiceItemSupplierFromEntities(
                 ServiceFactory.getClubService(),
-                predicate,
                 club -> new ChoiceItem<>(club, club.getName()),
                 "Не удалось загрузить список клубов"
         );
