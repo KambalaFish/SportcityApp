@@ -37,7 +37,7 @@ public class Court extends Entity{
         propertyNames.put("coverageTypeProperty", "Тип покрытия");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("coverageType", "Тип покрытия");
+        sortPropertyNames.put("coverageType", "Типу покрытия");
     }
 
     public static Map<String, String> getPropertyNames() {

@@ -33,21 +33,15 @@ public class CompetitionInputFormBuilder extends AbstractEntityInputFormBuilder<
                 entity.getFinishDate(),
                 entity::setFinishDate
                 );
-        controller.addChoiceBox(
-                "Вид спорта",
-                entity.getSport(),
-                entity::setSport,
-                null,
-                Sport::getChoiceItems
-        );
-        /*то есть выходит, если что-то поменяли в соревновании, например вид спорта, то все связи со спортивными сооружениями и спортсменами удаляются*/
-        if (isContextWindow) {
-            Consumer<Competition> preparation = competition -> {
-                competition.getSportFacilities().clear();
-                competition.getSportsmen().clear();
-            };
-            controller.setPreparation(preparation);
-        }
+        /*нет смысла менять вид спорта у уже назначенного соревнования, поэтому поле появляется только при создании*/
+        if (formType == FormType.CREATION_FORM)
+            controller.addChoiceBox(
+                    "Вид спорта",
+                    entity.getSport(),
+                    entity::setSport,
+                    null,
+                    Sport::getChoiceItems
+            );
     }
 
     @Override

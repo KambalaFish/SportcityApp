@@ -47,7 +47,7 @@ public class Stadium extends Entity{
         propertyNames.put("capacity", "Вместимость");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("capacity", "Вместимость");
+        sortPropertyNames.put("capacity", "Вместимости");
     }
 
     public static Map<String, String> getPropertyNames() {

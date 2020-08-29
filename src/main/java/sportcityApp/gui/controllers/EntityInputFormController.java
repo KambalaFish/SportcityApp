@@ -490,11 +490,6 @@ public class EntityInputFormController<T> {
         }
     }
 
-    private Consumer<T> preparation;
-    public void setPreparation(Consumer<T> preparation){
-        this.preparation = preparation;
-    }
-
     @FXML
     private void submit(ActionEvent event) {
         boolean fieldsAreValid = validateFields();
@@ -504,8 +499,6 @@ public class EntityInputFormController<T> {
         disableComponent();
         requestExecutor
                 .makeRequest(() ->{
-                    if (preparation!=null)
-                        preparation.accept(entity);
                     return submitAction.submit(entity);
                 })
                 .setOnSuccessAction(createdEntity -> {

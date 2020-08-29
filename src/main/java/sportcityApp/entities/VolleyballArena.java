@@ -47,8 +47,8 @@ public class VolleyballArena extends Entity{
         propertyNames.put("net_width", "Ширина сетки");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("net_height", "Высота сетки");
-        sortPropertyNames.put("net_width", "Ширина сетки");
+        sortPropertyNames.put("net_height", "Высоте сетки");
+        sortPropertyNames.put("net_width", "Ширине сетки");
     }
 
     public static Map<String, String> getPropertyNames() {

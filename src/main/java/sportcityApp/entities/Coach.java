@@ -55,7 +55,7 @@ public class Coach extends Entity{
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("name", "ФИО тренера");
-        sortPropertyNames.put("sport", "Вид спорта");
+        sortPropertyNames.put("sport", "Виду спорта");
     }
 
     public static Map<String, String> getPropertyNames(){

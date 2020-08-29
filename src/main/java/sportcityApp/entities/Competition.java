@@ -123,9 +123,9 @@ public class Competition extends Entity{
         propertyNames.put("sportProperty", "Вид спорта");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("name", "Название");
-        sortPropertyNames.put("beginningDate", "Дата начала");
-        sortPropertyNames.put("finishDate", "Дата окончания");
+        sortPropertyNames.put("name", "Названию");
+        sortPropertyNames.put("beginningDate", "Дате начала");
+        sortPropertyNames.put("finishDate", "Дате окончания");
     }
 
     public static Map<String, String> getPropertyNames(){

@@ -44,7 +44,7 @@ public class IceArena extends Entity{
         propertyNames.put("square", "Площадь");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("square", "Площадь");
+        sortPropertyNames.put("square", "Площади");
     }
 
     public static Map<String, String> getPropertyNames() {

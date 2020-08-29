@@ -10,6 +10,7 @@ import sportcityApp.gui.forms.input.impl.AbstractLinkingInputFormBuilder;
 import sportcityApp.utils.RequestExecutor;
 import sportcityApp.utils.ServiceFactory;
 
+import java.util.Date;
 import java.util.function.Predicate;
 
 public class PrizeWinnerForCompetition extends AbstractLinkingInputFormBuilder<Competition> {
@@ -26,9 +27,14 @@ public class PrizeWinnerForCompetition extends AbstractLinkingInputFormBuilder<C
     @Override
     protected void fillInputForm(Competition entity, EntityInputFormController<Competition> controller) {
 
-        //Predicate<Organizer> predicate = organizer -> organizer.getCompetitions().stream().noneMatch(competition -> competition.getId().intValue() == entity.getId().intValue());
         Predicate<Sportsman> predicate = prizeWinner -> {
-            boolean firstCondition = prizeWinner.getCompetitions().stream().anyMatch(competition -> competition.getId().intValue() == entity.getId().intValue());
+            boolean firstCondition = prizeWinner.getCompetitions().stream().anyMatch(
+                    competition ->
+                            (
+                                    competition.getId().intValue() == entity.getId().intValue() &
+                                    competition.getBeginningDate().before(new Date(System.currentTimeMillis()))
+                            )
+            );
             boolean secondCondition = prizeWinner.getWonCompetitions().stream().noneMatch(competition -> competition.getId().intValue() == entity.getId().intValue());
             return firstCondition & secondCondition;
         };
