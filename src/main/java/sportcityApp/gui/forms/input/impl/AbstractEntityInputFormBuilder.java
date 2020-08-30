@@ -41,6 +41,10 @@ public abstract class AbstractEntityInputFormBuilder <E extends Entity> implemen
         this.requestExecutor = requestExecutor;
     }
 
+    public RequestExecutor getRequestExecutor(){
+        return requestExecutor;
+    }
+
     public Stage buildCreationFormWindow(SuccessAction onSuccessAction){
         E entity = newEntitySupplier.get();
         return buildInputFormWindow(entity, FormType.CREATION_FORM, false, onSuccessAction);

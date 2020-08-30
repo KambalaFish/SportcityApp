@@ -67,6 +67,10 @@ public class EntityInputFormController<T> {
     @FXML
     private VBox contentBox;
 
+    public VBox getContentBox(){
+        return contentBox;
+    }
+
     @FXML
     private GridPane grid;
 
@@ -210,7 +214,7 @@ public class EntityInputFormController<T> {
     }
 
     @SneakyThrows
-    public <X> void addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, EntityFieldPreviousRemover<X> fieldRemover, ChoiceItemSupplier<X> itemSupplier) {
+    public <X> ComboBox<ChoiceItem<X>> addChoiceBox(String name, X initFieldValue, EntityFieldSetter<X> fieldSetter, EntityFieldPreviousRemover<X> fieldRemover, ChoiceItemSupplier<X> itemSupplier) {
         ChoiceItem<X> defaultItem;
         var items = itemSupplier.getItems();
         if (items.isEmpty()){
@@ -235,6 +239,7 @@ public class EntityInputFormController<T> {
         });
         choiceBoxes.put(choiceBox, defaultItem);
         addField(name, choiceBox);
+        return choiceBox;
     }
 
     public void addChoiceBoxForSportFacilityTypeCreation(SportFacility sportFacility){
@@ -398,6 +403,14 @@ public class EntityInputFormController<T> {
         int rowsNumber = grid.getRowCount();
         grid.add(label, 0, rowsNumber, 2, 1);
         grid.add(field, 2, rowsNumber, 3, 1);
+    }
+
+    public void addButton(String name, Runnable runnable){
+        Button button = new Button(name);
+        button.setOnAction( actionEvent -> {
+            runnable.run();
+        });
+        grid.add(button, 5, grid.getRowCount() - 1, 2,1);
     }
 
     private boolean validateFields() {

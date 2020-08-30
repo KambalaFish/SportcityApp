@@ -9,7 +9,7 @@ import java.util.*;
 @Setter
 public class Club extends Entity{
     private String name;
-    private Integer amount_of_members;
+    private Integer amount_of_members = 0;
     private List<Sportsman> sportsmen = new ArrayList<>();
 
 
