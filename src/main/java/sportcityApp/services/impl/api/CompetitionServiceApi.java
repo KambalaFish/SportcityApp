@@ -12,39 +12,39 @@ import java.util.Map;
 
 public interface CompetitionServiceApi extends CrudServiceApi{
 
-    @GET("/competition/{id}/sportsmen")
+    @GET("competition/{id}/sportsmen")
     Call<Page<Sportsman>> getSportsmen(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/competition/{id}/removeSportsman/{sportsmanId}")
+    @POST("competition/{id}/removeSportsman/{sportsmanId}")
     Call<Void> removeSportsmanFromCompetition(@Path("id") Integer competitionId, @Path("sportsmanId") Integer sportsmanId);
 
-    @GET("/competition/{id}/organizers")
+    @GET("competition/{id}/organizers")
     Call<Page<Organizer>> getOrganizers(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/competition/{id}/removeOrganizer/{organizerId}")
+    @POST("competition/{id}/removeOrganizer/{organizerId}")
     Call<Void> removeOrganizerFromCompetition(@Path("id") Integer competitionId, @Path("organizerId") Integer organizerId);
 
-    @GET("/competition/{id}/sportFacilities")
+    @GET("competition/{id}/sportFacilities")
     Call<Page<SportFacility>> getSportFacilities(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/competition/{id}/removeSportFacility/{sportFacilityId}")
+    @POST("competition/{id}/removeSportFacility/{sportFacilityId}")
     Call<Void> removeSportFacilityFromCompetition(@Path("id") Integer competitionId, @Path("sportFacilityId") Integer sportFacilityId);
 
-    @GET("/competition/{id}/courts")
+    @GET("competition/{id}/courts")
     Call<Page<Court>> getCourts(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @GET("/competition/{id}/stadiums")
+    @GET("competition/{id}/stadiums")
     Call<Page<Stadium>> getStadiums(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @GET("/competition/{id}/iceArenas")
+    @GET("competition/{id}/iceArenas")
     Call<Page<IceArena>> getIceArenas(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @GET("/competition/{id}/volleyballArenas")
+    @GET("competition/{id}/volleyballArenas")
     Call<Page<VolleyballArena>> getVolleyballArenas(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @GET("/competition/{id}/prizeWinners")
+    @GET("competition/{id}/prizeWinners")
     Call<Page<Sportsman>> getWinners(@Path("id") Integer competitionId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/competition/{id}/removePrizeWinner/{prizeWinnerId}")
+    @POST("competition/{id}/removePrizeWinner/{prizeWinnerId}")
     Call<Void> removePrizeWinnerFromCompetition(@Path("id") Integer competitionId, @Path("prizeWinnerId") Integer prizeWinnerId);
 }

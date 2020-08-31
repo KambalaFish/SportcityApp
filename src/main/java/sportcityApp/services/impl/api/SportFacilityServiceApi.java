@@ -10,15 +10,15 @@ import java.util.Map;
 
 public interface SportFacilityServiceApi extends CrudServiceApi{
 
-    @GET("/sportFacility/{id}/competitions")
+    @GET("sportFacility/{id}/competitions")
     Call<Page<Competition>> getCompetitions(@Path("id") Integer sportFacilityId, @QueryMap Map<String, Object> pageInfo);
 
-    @PUT("/sportFacility/{id}/removeCompetition/{competitionId}")
+    @PUT("sportFacility/{id}/removeCompetition/{competitionId}")
     Call<Void> removeCompetitionFromSportFacility(@Path("id") Integer sportFacilityId, @Path("competitionId") Integer competitionId);
 
-    @GET("/sportFacility/lastIdNumber")
+    @GET("sportFacility/lastIdNumber")
     Call<Integer> getLastIdNumber();
 
-    @POST("/sportFacility/competitionsByFilter")
+    @POST("sportFacility/competitionsByFilter")
     Call<Page<Competition>> getCompetitionsByFilter(@Body JsonElement filter, @QueryMap Map<String, Object> pageInfo);
 }

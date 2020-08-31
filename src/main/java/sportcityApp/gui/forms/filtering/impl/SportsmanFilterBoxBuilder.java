@@ -27,7 +27,7 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sports
         sportsmanFilter = (SportsmanFilter) filter;
 
 
-        controller.setNumberOfRows(7);
+        controller.setNumberOfRows(6);
         controller.setNumberOfCols(9);
         //controller.setNumberOfCols(6);
         int rowIndex = 0;
@@ -41,11 +41,6 @@ public class SportsmanFilterBoxBuilder extends AbstractFilterBoxBuilder/*<Sports
                 "Не удалось загрузить клубы"
         );
         controller.addChoiceBox(sportsmanFilter::setClubId, clubSupplier, 7, rowIndex, 2);
-
-        rowIndex++;
-
-        controller.addLabel("Вид спорта:", 0, rowIndex, 2);
-        controller.addChoiceBox(sportsmanFilter::setSport, Sport::getChoiceItems, 1, rowIndex, 3);
 
         rowIndex++;
 

@@ -10,6 +10,6 @@ import sportcityApp.services.pagination.Page;
 import java.util.Map;
 
 public interface StadiumServiceApi extends CrudServiceApi{
-    @GET("/stadium/pageWithStadiumById/{id}")
+    @GET("stadium/pageWithStadiumById/{id}")
     Call<Page<Stadium>> getPageWithStadiumById(@Path("id") Integer stadiumId, @QueryMap Map<String, Object> pageInfo);
 }

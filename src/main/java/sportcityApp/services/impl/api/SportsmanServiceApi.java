@@ -14,18 +14,18 @@ import java.util.Map;
 
 public interface SportsmanServiceApi extends CrudServiceApi{
 
-    @GET("/sportsman/{id}/abilities")
+    @GET("sportsman/{id}/abilities")
     Call<Page<Ability>> getAbilities(@Path("id") Integer sportsmanId, @QueryMap Map<String, Object> pageInfo);
 
-    @GET("/sportsman/{id}/coaches")
+    @GET("sportsman/{id}/coaches")
     Call<Page<Coach>> getCoaches(@Path("id") Integer sportsmanId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/sportsman/{id}/removeCoach/{coachId}")
+    @POST("sportsman/{id}/removeCoach/{coachId}")
     Call<Void> removeCoachFromSportsman(@Path("id") Integer sportsmanId, @Path("coachId") Integer coachId);
 
-    @GET("/sportsman/{id}/competitions")
+    @GET("sportsman/{id}/competitions")
     Call<Page<Competition>> getCompetitions(@Path("id") Integer sportsmanId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/sportsman/{id}/removeCompetition/{competitionId}")
+    @POST("sportsman/{id}/removeCompetition/{competitionId}")
     Call<Void> removeCompetitionFromSportsman(@Path("id") Integer sportsmanId, @Path("competitionId") Integer competitionId);
 }

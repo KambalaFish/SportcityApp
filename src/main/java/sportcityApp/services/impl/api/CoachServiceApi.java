@@ -13,10 +13,10 @@ import java.util.Map;
 
 public interface CoachServiceApi extends CrudServiceApi {
 
-    @GET("/coach/{id}/sportsmen")
+    @GET("coach/{id}/sportsmen")
     Call<Page<Sportsman>> getSportsmen(@Path("id") Integer coachId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/coach/{id}/removeSportsman/{sportsmanId}")
+    @POST("coach/{id}/removeSportsman/{sportsmanId}")
     Call<Void> removeSportsmanFromCoach(@Path("id") Integer coachId, @Path("sportsmanId") Integer sportsmanId);
 
 }

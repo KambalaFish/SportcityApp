@@ -19,7 +19,7 @@ public class Club extends Entity{
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("name", "Название");
-        propertyNames.put("amount_of_members", "Число членов клуба");
+        propertyNames.put("amount_of_members", "Общее число членов клуба");
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("name", "Названию клуба");
         sortPropertyNames.put("amount_of_members", "Числу членов");

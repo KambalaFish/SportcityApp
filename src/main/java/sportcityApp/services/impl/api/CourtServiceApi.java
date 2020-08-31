@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface CourtServiceApi extends CrudServiceApi{
 
-    @GET("/court/pageWithCourtById/{id}")
+    @GET("court/pageWithCourtById/{id}")
     Call<Page<Court>> getPageWithCourtById(@Path("id") Integer courtId, @QueryMap Map<String, Object> pageInfo);
 
 }

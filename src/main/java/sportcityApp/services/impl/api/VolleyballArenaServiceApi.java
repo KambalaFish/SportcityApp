@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface VolleyballArenaServiceApi extends CrudServiceApi{
 
-    @GET("/volleyballArena/pageWithVolleyballArenaById/{id}")
+    @GET("volleyballArena/pageWithVolleyballArenaById/{id}")
     Call<Page<VolleyballArena>> getPageWithVolleyballArenaById(@Path("id") Integer volleyballArenaId, @QueryMap Map<String, Object> pageInfo);
 
 }

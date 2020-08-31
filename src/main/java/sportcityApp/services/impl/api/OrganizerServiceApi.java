@@ -10,10 +10,10 @@ import java.util.Map;
 
 public interface OrganizerServiceApi extends CrudServiceApi{
 
-    @GET("/organizer/{id}/competitions")
+    @GET("organizer/{id}/competitions")
     Call<Page<Competition>> getCompetitions(@Path("id") Integer organizerId, @QueryMap Map<String, Object> pageInfo);
 
-    @POST("/organizer/{id}/removeCompetition/{competitionId}")
+    @POST("organizer/{id}/removeCompetition/{competitionId}")
     Call<Void> removeCompetitionFromOrganizer(@Path("id") Integer organizerId, @Path("competitionId") Integer competitionId);
 
     @POST("organizer/{id}/numberOfCompetitionForPeriod")

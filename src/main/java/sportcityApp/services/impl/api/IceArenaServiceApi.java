@@ -10,6 +10,6 @@ import sportcityApp.services.pagination.Page;
 import java.util.Map;
 
 public interface IceArenaServiceApi extends CrudServiceApi{
-    @GET("/iceArena/pageWithIceArenaById/{id}")
+    @GET("iceArena/pageWithIceArenaById/{id}")
     Call<Page<IceArena>> getPageWithIceArenaById(@Path("id") Integer iceArenaId, @QueryMap Map<String, Object> pageInfo);
 }
